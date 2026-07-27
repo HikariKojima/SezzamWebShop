@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+
+@theme {
+	--font-sans: Poppins, ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+	font-family: Poppins, ui-sans-serif, system-ui, sans-serif;
+	color: #1b1c1a;
+	background: #fbf9f6;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	margin: 0;
+	min-width: 320px;
+	background: #fbf9f6;
+}
+
+button,
+input,
+select {
+	font: inherit;
+}
+
+button {
+	cursor: pointer;
+}

@@ -1,0 +1,98 @@
+Project: Sezzam construction ecommerce
+
+Language:
+- Bosnian only
+
+Market:
+- Bosnia and Herzegovina
+
+Core idea:
+- A clean, premium construction materials storefront where customers can browse products, add items to cart, and choose either online payment or cash/in-person payment.
+
+Initial scale:
+- Around 30 products at launch
+- A few hundred users expected early on
+- Admin-managed catalog and inventory
+
+Primary customer flow:
+1. Customer lands on home/catalog page.
+2. Customer searches or filters products by category, unit, availability, and price.
+3. Customer opens a product detail page.
+4. Customer selects quantity based on product unit, such as m2, bag, piece, or pallet.
+5. Customer adds product to cart.
+6. Customer reviews cart.
+7. Customer enters contact details.
+8. Customer chooses payment method:
+   - Cash/in-person payment
+   - Online card payment
+9. Customer submits order.
+10. Customer receives confirmation.
+
+Admin flow:
+1. Admin logs in.
+2. Admin creates and edits categories.
+3. Admin creates and edits products.
+4. Admin changes product prices.
+5. Admin updates stock quantities.
+6. Admin views orders.
+7. Admin updates order status.
+
+MVP pages:
+- Home / materials catalog
+- Product category page
+- Product detail page
+- Cart
+- Checkout
+- Order confirmation
+- Admin login
+- Admin dashboard
+- Admin products
+- Admin orders
+
+MVP product fields:
+- Name
+- Slug
+- Description
+- Category
+- Unit: m2, bag, piece, pallet, box, kg, ton
+- Price
+- Currency: BAM
+- Stock quantity
+- Low-stock threshold
+- Images
+- Active/inactive status
+- Featured status
+
+MVP order fields:
+- Customer name
+- Phone
+- Email
+- Address or pickup note
+- Payment method
+- Payment status
+- Order status
+- Order items
+- Total price
+- Created date
+
+Payment approach:
+- Support cash/in-person payment from the first functional checkout.
+- Design the order model so online card payment can be added cleanly.
+- Add online card payment after the basic checkout, inventory deduction, and order admin flow work.
+
+Inventory approach:
+- Track product stock quantity.
+- Reduce stock after successful order submission.
+- For online payment, reduce stock only after payment succeeds or reserve stock during payment.
+- Show low-stock and out-of-stock states in the storefront.
+
+SEO:
+- Use clean product/category URLs.
+- Add Bosnian metadata for home, categories, and product pages.
+- Generate structured product data later if useful.
+
+Design direction:
+- Follow DESIGN.md and screen.png.
+- Refined minimalist industrial storefront.
+- Premium, clean, technical, calm.
+- Avoid cluttered warehouse-style ecommerce UI.
