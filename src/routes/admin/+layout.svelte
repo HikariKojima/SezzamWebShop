@@ -38,7 +38,7 @@
 						Proizvodi
 					</a>
 					<a
-						class="rounded-full border border-transparent px-4 py-2 text-[#434843] transition hover:border-[#c3c8c1] hover:bg-white"
+						class="rounded-full border border-[#c3c8c1] bg-white px-4 py-2 text-[#061b0e] transition hover:bg-[#f5f3f0]"
 						href={resolve('/')}
 					>
 						Stranica

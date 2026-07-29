@@ -47,7 +47,11 @@
 				const parsedCart = JSON.parse(savedCart) as CartItem[];
 				cartItems = parsedCart.filter(
 					(item) =>
-						products.some((product) => product.id === item.productId) &&
+						products.some(
+							(product) =>
+								product.id === item.productId &&
+								(product.availability === 'by-order' || item.quantity <= product.stockQuantity)
+						) &&
 						Number.isInteger(item.quantity) &&
 						item.quantity > 0
 				);
@@ -82,9 +86,16 @@
 	}
 
 	function increaseQuantity(productId: string) {
+		const product = products.find((candidate) => candidate.id === productId);
+		if (!product) return;
+		if (product.availability !== 'by-order' && product.stockQuantity <= 0) return;
+
 		const existingItem = cartItems.find((item) => item.productId === productId);
 
 		if (existingItem) {
+			if (product.availability !== 'by-order' && existingItem.quantity >= product.stockQuantity) {
+				return;
+			}
 			cartItems = cartItems.map((item) =>
 				item.productId === productId ? { ...item, quantity: item.quantity + 1 } : item
 			);

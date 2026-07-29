@@ -156,9 +156,11 @@
 									</button>
 									<span class="text-center text-sm font-semibold">{item.quantity}</span>
 									<button
-										class="grid size-9 place-items-center rounded-full text-lg transition hover:bg-[#d0e9d4]"
+										class="grid size-9 place-items-center rounded-full text-lg transition hover:bg-[#d0e9d4] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
 										aria-label={`Povećaj količinu za ${item.product.name}`}
 										onclick={() => onIncrease(item.productId)}
+										disabled={item.product.availability !== 'by-order' &&
+											item.quantity >= item.product.stockQuantity}
 									>
 										+
 									</button>

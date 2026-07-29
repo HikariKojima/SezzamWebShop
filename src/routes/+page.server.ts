@@ -13,6 +13,8 @@ import type {
 } from '$lib/types/product';
 import type { Actions } from './$types';
 
+const MAX_ITEM_QUANTITY = 10_000;
+
 export async function load() {
 	const rows = await db
 		.select()
@@ -29,13 +31,19 @@ export async function load() {
 		unitType: product.unitType as ProductUnitType,
 		tag: product.tag,
 		stock: product.stockLabel,
-		stockQuantity: product.stockQuantity,
+		stockQuantity: Math.max(product.stockQuantity - product.reservedQuantity, 0),
 		category: product.categoryId as ProductCategory,
 		availability: product.availability as ProductAvailability,
 		art: product.art as ProductArt
 	}));
 
 	return { products };
+}
+
+class InsufficientStockError extends Error {
+	constructor(public productName: string) {
+		super(`Insufficient stock for ${productName}`);
+	}
 }
 
 function parseCartItems(value: FormDataEntryValue | null) {
@@ -64,12 +72,15 @@ function parseCartItems(value: FormDataEntryValue | null) {
 				typeof productId !== 'string' ||
 				productId.trim().length === 0 ||
 				!Number.isInteger(quantity) ||
-				quantity <= 0
+				quantity <= 0 ||
+				quantity > MAX_ITEM_QUANTITY
 			) {
 				return null;
 			}
 
-			quantities.set(productId, (quantities.get(productId) ?? 0) + quantity);
+			const totalQuantity = (quantities.get(productId) ?? 0) + quantity;
+			if (totalQuantity > MAX_ITEM_QUANTITY) return null;
+			quantities.set(productId, totalQuantity);
 		}
 
 		return Array.from(quantities, ([productId, quantity]): CartItem => ({ productId, quantity }));
@@ -157,41 +168,70 @@ export const actions: Actions = {
 		});
 		const subtotalCents = orderLines.reduce((total, item) => total + item.lineTotalCents, 0);
 
-		const order = await db.transaction(async (tx) => {
-			const [createdOrder] = await tx
-				.insert(orders)
-				.values({
-					customerName,
-					customerPhone,
-					status: 'pending',
-					paymentMethod: 'cash_in_person',
-					subtotalCents
-				})
-				.returning({ id: orders.id });
+		let order: { id: number };
 
-			await tx.insert(orderItems).values(
-				orderLines.map((line) => ({
-					orderId: createdOrder.id,
-					productId: line.product.id,
-					productName: line.product.name,
-					productUnit: line.product.unit,
-					quantity: line.quantity,
-					unitPriceCents: line.product.priceCents,
-					lineTotalCents: line.lineTotalCents
-				}))
-			);
+		try {
+			order = await db.transaction(async (tx) => {
+				for (const line of orderLines) {
+					const stockCondition =
+						line.product.availability === 'by-order'
+							? sql`true`
+							: sql`${productsTable.stockQuantity} - ${productsTable.reservedQuantity} >= ${line.quantity}`;
+					const reserved = await tx
+						.update(productsTable)
+						.set({
+							reservedQuantity: sql`${productsTable.reservedQuantity} + ${line.quantity}`
+						})
+						.where(
+							and(
+								eq(productsTable.id, line.product.id),
+								eq(productsTable.active, true),
+								stockCondition
+							)
+						)
+						.returning({ id: productsTable.id });
 
-			for (const line of orderLines) {
-				await tx
-					.update(productsTable)
-					.set({
-						reservedQuantity: sql`${productsTable.reservedQuantity} + ${line.quantity}`
+					if (reserved.length !== 1) {
+						throw new InsufficientStockError(line.product.name);
+					}
+				}
+
+				const [createdOrder] = await tx
+					.insert(orders)
+					.values({
+						customerName,
+						customerPhone,
+						status: 'pending',
+						paymentMethod: 'cash_in_person',
+						subtotalCents
 					})
-					.where(eq(productsTable.id, line.product.id));
+					.returning({ id: orders.id });
+
+				await tx.insert(orderItems).values(
+					orderLines.map((line) => ({
+						orderId: createdOrder.id,
+						productId: line.product.id,
+						productName: line.product.name,
+						productUnit: line.product.unit,
+						quantity: line.quantity,
+						unitPriceCents: line.product.priceCents,
+						lineTotalCents: line.lineTotalCents
+					}))
+				);
+
+				return createdOrder;
+			});
+		} catch (error) {
+			if (error instanceof InsufficientStockError) {
+				return fail(409, {
+					error: `Proizvod „${error.productName}“ više nema traženu količinu na stanju. Osvježite korpu i pokušajte ponovo.`,
+					customerName,
+					customerPhone: customerPhoneInput
+				});
 			}
 
-			return createdOrder;
-		});
+			throw error;
+		}
 
 		return {
 			success: true,

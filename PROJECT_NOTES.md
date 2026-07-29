@@ -87,10 +87,16 @@ Product management:
 Order statuses:
 
 - `pending`
-- `confirmed`
 - `ready`
 - `completed`
 - `cancelled`
+
+Status workflow:
+
+- Changing an order between `pending` and `ready` saves immediately.
+- Moving an order to `completed` or `cancelled` requires confirmation.
+- Completed and cancelled orders are terminal and cannot be reopened.
+- Migration `0003` removed the old `confirmed` workflow and was applied July 29, 2026.
 
 ## Important Concepts
 
@@ -101,6 +107,26 @@ Order statuses:
 - Hard delete needs a server-side order reference check so historical orders do not break.
 
 ## Suggested Next Steps
+
+Current agreed roadmap (July 2026):
+
+1. Inventory workflow and stock correctness (implemented; migration `0002` applied July 29, 2026)
+2. Admin order detail page
+3. Public product detail pages
+4. Real product images
+5. More dashboard reporting
+6. Bosnian text-encoding cleanup
+7. Deployment and security preparation
+
+Inventory rules:
+
+- Checkout must not reserve more than the currently available quantity, except for products marked `by-order`.
+- Available quantity is `stockQuantity - reservedQuantity`.
+- Cancelling an active order releases its reserved quantity.
+- Completing an active order deducts physical stock and releases the reservation.
+- Completed and cancelled orders are terminal and cannot be reopened.
+- `by-order` products accept backorders, but an order cannot be completed until enough physical stock is entered.
+- Pending reservations remain until the owner completes or cancels the order; they do not expire automatically.
 
 1. Product detail pages
    - Add `/proizvodi/[id]` public pages.

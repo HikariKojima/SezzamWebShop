@@ -15,6 +15,20 @@
 			"when": 1784103815411,
 			"tag": "0001_cultured_sally_floyd",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1785312000000,
+			"tag": "0002_reconcile_inventory",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1785315600000,
+			"tag": "0003_simplify_order_statuses",
+			"breakpoints": true
 		}
 	]
 }

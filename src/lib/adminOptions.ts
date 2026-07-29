@@ -7,9 +7,8 @@ export const availabilityOptions = [
 
 export const orderStatusOptions = [
 	{ value: 'pending', label: 'Nova' },
-	{ value: 'confirmed', label: 'Potvrdjena' },
 	{ value: 'ready', label: 'Spremna' },
-	{ value: 'completed', label: 'Zavrsena' },
+	{ value: 'completed', label: 'Završena' },
 	{ value: 'cancelled', label: 'Otkazana' }
 ] as const;
 

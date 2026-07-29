@@ -68,18 +68,20 @@
 						</button>
 						<span class="text-center text-sm font-semibold">{quantity}</span>
 						<button
-							class="grid size-10 place-items-center rounded-full text-xl transition hover:bg-[#d0e9d4]"
+							class="grid size-10 place-items-center rounded-full text-xl transition hover:bg-[#d0e9d4] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
 							aria-label={`Povećaj količinu za ${product.name}`}
 							onclick={onIncrease}
+							disabled={product.availability !== 'by-order' && quantity >= product.stockQuantity}
 						>
 							+
 						</button>
 					</div>
 				{:else}
 					<button
-						class="grid size-12 place-items-center rounded-full border border-[#c3c8c1] bg-[#fbf9f6] text-2xl leading-none text-[#061b0e] transition hover:border-[#1b3022] hover:bg-[#d0e9d4]"
+						class="grid size-12 place-items-center rounded-full border border-[#c3c8c1] bg-[#fbf9f6] text-2xl leading-none text-[#061b0e] transition hover:border-[#1b3022] hover:bg-[#d0e9d4] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-[#c3c8c1] disabled:hover:bg-[#fbf9f6]"
 						aria-label={`Dodaj ${product.name} u korpu`}
 						onclick={onAdd}
+						disabled={product.availability !== 'by-order' && product.stockQuantity <= 0}
 					>
 						+
 					</button>
