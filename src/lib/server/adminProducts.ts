@@ -1,7 +1,6 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
+import { put } from '@vercel/blob';
 
 import {
 	availabilityOptions,
@@ -85,13 +84,10 @@ export async function parseProductForm(formData: FormData) {
 
 	let imageUrl = String(formData.get('imageUrl') ?? '').trim() || null;
 
-	// Handle Direct Image File Upload
 	const imageFile = formData.get('imageFile');
 	if (imageFile && typeof imageFile === 'object' && 'size' in imageFile && (imageFile as File).size > 0) {
 		try {
 			const file = imageFile as File;
-			const arrayBuffer = await file.arrayBuffer();
-			const buffer = Buffer.from(arrayBuffer);
 
 			const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
 			const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'avif'].includes(ext) ? ext : 'jpg';
@@ -103,17 +99,12 @@ export async function parseProductForm(formData: FormData) {
 				.slice(0, 40);
 
 			const fileName = `${safeBaseName || 'proizvod'}-${Date.now()}.${safeExt}`;
-			const uploadsDir = path.resolve('static/images/products');
 
-			if (!fs.existsSync(uploadsDir)) {
-				fs.mkdirSync(uploadsDir, { recursive: true });
-			}
-
-			const filePath = path.join(uploadsDir, fileName);
-			fs.writeFileSync(filePath, buffer);
-			imageUrl = `/images/products/${fileName}`;
+			// Upload na Vercel Blob
+			const blob = await put(`products/${fileName}`, file, { access: 'public' });
+			imageUrl = blob.url; // Vraća nam trajni public URL
 		} catch (uploadError) {
-			console.error('Greška pri uploadu slike:', uploadError);
+			console.error('Greška pri uploadu slike na Vercel Blob:', uploadError);
 		}
 	}
 
