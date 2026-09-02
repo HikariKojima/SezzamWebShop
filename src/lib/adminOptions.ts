@@ -1,7 +1,7 @@
 export const availabilityOptions = [
 	{ value: 'in-stock', label: 'Na stanju' },
 	{ value: 'low-stock', label: 'Niska zaliha' },
-	{ value: 'by-order', label: 'Po narudzbi' },
+	{ value: 'by-order', label: 'Po narudžbi' },
 	{ value: 'out-of-stock', label: 'Nema na stanju' }
 ] as const;
 
@@ -12,29 +12,31 @@ export const orderStatusOptions = [
 	{ value: 'cancelled', label: 'Otkazana' }
 ] as const;
 
-export const productCategoryOptions = [
-	{ value: 'cement', label: 'Cement' },
-	{ value: 'armatura', label: 'Armatura' },
-	{ value: 'plocice', label: 'Plocice' },
-	{ value: 'izolacija', label: 'Izolacija' }
+export const defaultCategoryOptions = [
+	{ value: 'wpc', label: 'WPC Decking' },
+	{ value: 'spc', label: 'SPC Podovi' },
+	{ value: 'lvt', label: 'LVT Podovi' },
+	{ value: 'tekstilne-ploce', label: 'Tekstilne ploče' }
 ] as const;
+
+export const productCategoryOptions = defaultCategoryOptions;
 
 export const productUnitTypeOptions = [
 	{ value: 'm2', label: 'm2' },
-	{ value: 'vreca', label: 'Vreca' },
-	{ value: 'komad', label: 'Komad' }
+	{ value: 'komad', label: 'Komad' },
+	{ value: 'vreca', label: 'Vreća' }
 ] as const;
 
 export const productArtOptions = [
-	{ value: 'cement', label: 'Cement' },
-	{ value: 'steel', label: 'Armatura' },
-	{ value: 'tile', label: 'Plocice' },
-	{ value: 'insulation', label: 'Izolacija' }
+	{ value: 'tile', label: 'Podna obloga / Ploča' },
+	{ value: 'insulation', label: 'Decking / Daska' },
+	{ value: 'cement', label: 'Vreća / Materijal' },
+	{ value: 'steel', label: 'Metal / Konstrukcija' }
 ] as const;
 
 export type ProductAvailabilityValue = (typeof availabilityOptions)[number]['value'];
 export type OrderStatusValue = (typeof orderStatusOptions)[number]['value'];
-export type ProductCategoryValue = (typeof productCategoryOptions)[number]['value'];
+export type ProductCategoryValue = string;
 export type ProductUnitTypeValue = (typeof productUnitTypeOptions)[number]['value'];
 export type ProductArtValue = (typeof productArtOptions)[number]['value'];
 

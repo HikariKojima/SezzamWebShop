@@ -2,10 +2,15 @@
 	import { flip } from 'svelte/animate';
 	import { onMount, tick } from 'svelte';
 
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import CartDrawer from '$lib/components/CartDrawer.svelte';
+	import CartToastBar from '$lib/components/CartToastBar.svelte';
 	import FilterBar from '$lib/components/FilterBar.svelte';
+	import FloatingCallButton from '$lib/components/FloatingCallButton.svelte';
+	import Footer from '$lib/components/Footer.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import Hero from '$lib/components/Hero.svelte';
+	import MaterialCalculator from '$lib/components/MaterialCalculator.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
 	import type { CartItem } from '$lib/types/cart';
 	import type { Product, ProductFilters, ProductSort } from '$lib/types/product';
@@ -26,8 +31,20 @@
 	let selectedFilters = $state<ProductFilters>({ ...defaultFilters });
 	let searchQuery = $state('');
 	let sort = $state<ProductSort>('recommended');
+
+	// Calculator modal state
+	let calculatorDialogOpen = $state(false);
+	let calculatorSelectedProduct = $state<Product | null>(null);
+
 	let products = $derived(data.products);
 	let cartCount = $derived(cartItems.reduce((total, item) => total + item.quantity, 0));
+	let cartSubtotal = $derived(
+		cartItems.reduce((sum, item) => {
+			const prod = products.find((p) => p.id === item.productId);
+			return sum + (prod ? prod.price * item.quantity : 0);
+		}, 0)
+	);
+
 	let minCatalogPrice = $derived(
 		products.length > 0 ? Math.floor(Math.min(...products.map((product) => product.price))) : 0
 	);
@@ -82,7 +99,6 @@
 
 	function addToCart(productId: string) {
 		increaseQuantity(productId);
-		cartOpen = true;
 	}
 
 	function increaseQuantity(productId: string) {
@@ -105,6 +121,35 @@
 		cartItems = [...cartItems, { productId, quantity: 1 }];
 	}
 
+	function addCalculatedToCart(productId: string, quantity: number) {
+		const product = products.find((candidate) => candidate.id === productId);
+		if (!product || quantity <= 0) return;
+
+		const existingItem = cartItems.find((item) => item.productId === productId);
+		const allowedQuantity =
+			product.availability === 'by-order'
+				? quantity
+				: Math.min(quantity, product.stockQuantity);
+
+		if (existingItem) {
+			cartItems = cartItems.map((item) =>
+				item.productId === productId
+					? {
+							...item,
+							quantity:
+								product.availability === 'by-order'
+									? item.quantity + allowedQuantity
+									: Math.min(item.quantity + allowedQuantity, product.stockQuantity)
+						}
+					: item
+			);
+		} else {
+			cartItems = [...cartItems, { productId, quantity: allowedQuantity }];
+		}
+
+		calculatorDialogOpen = false;
+	}
+
 	function decreaseQuantity(productId: string) {
 		cartItems = cartItems.flatMap((item) => {
 			if (item.productId !== productId) return [item];
@@ -115,6 +160,11 @@
 
 	function removeFromCart(productId: string) {
 		cartItems = cartItems.filter((item) => item.productId !== productId);
+	}
+
+	function openCalculatorModal(product: Product) {
+		calculatorSelectedProduct = product;
+		calculatorDialogOpen = true;
 	}
 
 	function productMatchesFilters(product: Product) {
@@ -168,8 +218,12 @@
 			return [...items].sort((first, second) => first.price - second.price);
 		}
 
-		if (selectedSort === 'stock-desc') {
-			return [...items].sort((first, second) => second.stockQuantity - first.stockQuantity);
+		if (selectedSort === 'price-desc') {
+			return [...items].sort((first, second) => second.price - first.price);
+		}
+
+		if (selectedSort === 'name-asc') {
+			return [...items].sort((first, second) => first.name.localeCompare(second.name));
 		}
 
 		return items;
@@ -188,11 +242,11 @@
 	<title>Sezzam | Građevinski materijali u BiH</title>
 	<meta
 		name="description"
-		content="Premium građevinski materijali za profesionalne projekte u Bosni i Hercegovini."
+		content="Premium građevinski materijali, decking i laminat za profesionalne projekte u Bosni i Hercegovini."
 	/>
 </svelte:head>
 
-<main class="min-h-screen bg-[#fbf9f6] text-[#1b1c1a]">
+<main class="min-h-screen bg-[#fbf9f6] text-[#1b1c1a] flex flex-col">
 	<Header
 		{cartCount}
 		{searchQuery}
@@ -200,11 +254,27 @@
 		onCartOpen={() => (cartOpen = true)}
 		onSearchChange={(value) => (searchQuery = value)}
 		onSearchResultSelect={selectSearchResult}
+		onOpenCalculator={() => {
+			calculatorSelectedProduct = null;
+			calculatorDialogOpen = true;
+		}}
 	/>
+
 	<Hero />
 
-	<section id="materijali" class="mx-auto max-w-[1280px] px-4 pb-20 sm:px-6 lg:px-12">
+
+
+	<!-- Catalog / Materials Section -->
+	<section id="materijali" class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-12 flex-1">
+		<div class="mb-8">
+			<h2 class="text-3xl font-bold tracking-tight text-[#061b0e]">Katalog materijala</h2>
+			<p class="mt-2 text-sm text-[#434843]">
+				Filtrirajte i pretražite materijale spremne za narudžbu i isporuku.
+			</p>
+		</div>
+
 		<FilterBar
+			categories={data.categories}
 			{selectedFilters}
 			{sort}
 			{resultCount}
@@ -224,26 +294,60 @@
 							onAdd={() => addToCart(product.id)}
 							onIncrease={() => increaseQuantity(product.id)}
 							onDecrease={() => decreaseQuantity(product.id)}
+							onOpenCalculator={openCalculatorModal}
 						/>
 					</div>
 				{/each}
 			</div>
 		{:else}
-			<div class="mt-10 rounded-lg border border-[#c3c8c1] bg-white px-6 py-14 text-center">
-				<p class="text-lg font-semibold text-[#061b0e]">Nema proizvoda za odabrane filtere</p>
+			<div class="mt-10 rounded-xl border border-[#c3c8c1] bg-white px-6 py-14 text-center">
+				<p class="text-lg font-semibold text-[#061b0e]">Nema materijala za odabrane filtere</p>
 				<p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#434843]">
-					Pokušajte ukloniti jedan filter ili vratiti katalog na sve materijale.
+					Pokušajte ukloniti filtere ili ponovo pokrenite pretragu.
 				</p>
 				<button
-					class="mt-6 rounded-full bg-[#1b3022] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#061b0e]"
+					class="mt-6 rounded-full bg-[#1b3022] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#061b0e]"
 					onclick={resetFilters}
 				>
-					Poništi filtere
+					Poništi sve filtere
 				</button>
 			</div>
 		{/if}
 	</section>
 
+	<!-- Dedicated Calculator Dialog for Product Cards -->
+	<Dialog.Root bind:open={calculatorDialogOpen}>
+		<Dialog.Content class="sm:max-w-175 border-[#c3c8c1] bg-white p-0 overflow-hidden">
+			<Dialog.Header class="p-6 pb-0">
+				<Dialog.Title class="text-xl font-bold text-[#061b0e]">
+					Kalkulator utroška površine
+				</Dialog.Title>
+				<Dialog.Description class="text-xs text-[#5b5f60]">
+					Proračun potrebne količine za {calculatorSelectedProduct?.name ?? 'odabrani materijal'}
+				</Dialog.Description>
+			</Dialog.Header>
+			<div class="p-4 sm:p-6">
+				<MaterialCalculator
+					{products}
+					initialProduct={calculatorSelectedProduct}
+					onAddToCart={addCalculatedToCart}
+				/>
+			</div>
+		</Dialog.Content>
+	</Dialog.Root>
+
+	<!-- Attention-grabbing Cart Toast Bar (Bottom action bar) -->
+	<CartToastBar
+		cartCount={cartCount}
+		subtotal={cartSubtotal}
+		visible={!cartOpen}
+		onOpenCart={() => (cartOpen = true)}
+	/>
+
+	<!-- Floating Call Button for mobile -->
+	<FloatingCallButton />
+
+	<!-- Slide-in Cart Drawer & Checkout -->
 	<CartDrawer
 		bind:open={cartOpen}
 		{cartItems}
@@ -253,4 +357,9 @@
 		onDecrease={decreaseQuantity}
 		onRemove={removeFromCart}
 	/>
+
+	<!-- Sezzam Footer with Google Maps location and info -->
+	<div id="lokacija">
+		<Footer />
+	</div>
 </main>

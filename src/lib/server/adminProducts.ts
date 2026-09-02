@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 
@@ -26,6 +28,7 @@ type ProductFormValues = {
 	stockQuantity: number;
 	availability: ProductAvailabilityValue;
 	art: ProductArtValue;
+	imageUrl: string | null;
 	active: boolean;
 	sortOrder: number;
 };
@@ -66,7 +69,7 @@ function parseOption<T extends string>(
 	return allowedValues.includes(value as T) ? (value as T) : null;
 }
 
-export function parseProductForm(formData: FormData) {
+export async function parseProductForm(formData: FormData) {
 	const name = parseRequiredText(formData, 'name', 180);
 	const description = parseRequiredText(formData, 'description', 2000);
 	const priceCents = parsePriceCents(formData.get('price'));
@@ -79,6 +82,40 @@ export function parseProductForm(formData: FormData) {
 	const availability = parseOption(formData.get('availability'), availabilityValues);
 	const art = parseOption(formData.get('art'), artValues);
 	const sortOrder = parseNonNegativeInteger(formData.get('sortOrder'));
+
+	let imageUrl = String(formData.get('imageUrl') ?? '').trim() || null;
+
+	// Handle Direct Image File Upload
+	const imageFile = formData.get('imageFile');
+	if (imageFile && typeof imageFile === 'object' && 'size' in imageFile && (imageFile as File).size > 0) {
+		try {
+			const file = imageFile as File;
+			const arrayBuffer = await file.arrayBuffer();
+			const buffer = Buffer.from(arrayBuffer);
+
+			const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+			const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'avif'].includes(ext) ? ext : 'jpg';
+			const safeBaseName = file.name
+				.replace(/\.[^/.]+$/, '')
+				.toLowerCase()
+				.replace(/[^a-z0-9]/g, '-')
+				.replace(/-+/g, '-')
+				.slice(0, 40);
+
+			const fileName = `${safeBaseName || 'proizvod'}-${Date.now()}.${safeExt}`;
+			const uploadsDir = path.resolve('static/images/products');
+
+			if (!fs.existsSync(uploadsDir)) {
+				fs.mkdirSync(uploadsDir, { recursive: true });
+			}
+
+			const filePath = path.join(uploadsDir, fileName);
+			fs.writeFileSync(filePath, buffer);
+			imageUrl = `/images/products/${fileName}`;
+		} catch (uploadError) {
+			console.error('Greška pri uploadu slike:', uploadError);
+		}
+	}
 
 	if (
 		!name ||
@@ -109,6 +146,7 @@ export function parseProductForm(formData: FormData) {
 		stockQuantity,
 		availability,
 		art,
+		imageUrl,
 		sortOrder,
 		active: formData.has('active')
 	};

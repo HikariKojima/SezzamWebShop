@@ -2,9 +2,9 @@
 	import { resolve } from '$app/paths';
 </script>
 
-<section class="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-12 lg:py-12">
+<section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-12 lg:py-12">
 	<div
-		class="grid overflow-hidden rounded-lg border border-[#c3c8c1] bg-white lg:min-h-[400px] lg:grid-cols-[1fr_1.05fr]"
+		class="grid overflow-hidden rounded-lg border border-[#c3c8c1] bg-white lg:min-h-100 lg:grid-cols-[1fr_1.05fr]"
 	>
 		<div class="flex flex-col justify-center px-6 py-10 sm:px-12 lg:py-14">
 			<p class="mb-5 text-xs font-semibold uppercase text-[#4d6453]">Građevinski materijali</p>
@@ -12,7 +12,7 @@
 				Gradite sigurnije. Birajte preciznije.
 			</h1>
 			<p class="mt-6 max-w-lg text-base leading-7 text-[#434843] sm:text-lg">
-				Od cementa i armature do izolacije i pločica, Sezzam donosi uredan katalog materijala za
+				Od cementa i armature do izolacije i pločica, Sezzam donosi uredan katalog proizvoda za
 				profesionalne i kućne projekte.
 			</p>
 			<div class="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -23,16 +23,16 @@
 					Pregledaj materijale
 				</a>
 				<a
-					href={resolve('/')}
-					class="inline-flex h-14 items-center justify-center rounded-full border border-[#737973] px-8 text-sm font-semibold text-[#1b1c1a] transition hover:bg-[#efeeeb]"
+					href="tel:+38761069798"
+					class="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-[#737973] px-8 text-sm font-semibold text-[#1b1c1a] transition hover:border-[#1b3022] hover:bg-[#efeeeb]"
 				>
-					Zatraži ponudu
+					<span>Pozovite za ponudu</span>
 				</a>
 			</div>
 		</div>
 
 		<div
-			class="hero-visual min-h-[280px] border-t border-[#e3e2e0] bg-[#efeeeb] lg:border-l lg:border-t-0"
+			class="hero-visual min-h-70 border-t border-[#e3e2e0] bg-[#efeeeb] lg:border-l lg:border-t-0"
 		>
 			<div class="material-stack" aria-hidden="true">
 				<div class="beam beam-top"></div>

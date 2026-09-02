@@ -1,10 +1,10 @@
 import { error } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 
 import { requireAdminSession } from '$lib/server/adminAuth';
 import { parseProductForm } from '$lib/server/adminProducts';
 import { db } from '$lib/server/db';
-import { products } from '$lib/server/db/schema';
+import { categories, products } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
@@ -16,11 +16,20 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		error(404, 'Proizvod nije pronadjen.');
 	}
 
+	const allCategories = await db
+		.select({
+			id: categories.id,
+			name: categories.name
+		})
+		.from(categories)
+		.orderBy(asc(categories.sortOrder));
+
 	return {
 		product: {
 			...product,
 			price: product.priceCents / 100
-		}
+		},
+		categories: allCategories
 	};
 };
 
@@ -29,7 +38,7 @@ export const actions: Actions = {
 		requireAdminSession(cookies);
 
 		const formData = await request.formData();
-		const parsedProduct = parseProductForm(formData);
+		const parsedProduct = await parseProductForm(formData);
 
 		if ('status' in parsedProduct) return parsedProduct;
 

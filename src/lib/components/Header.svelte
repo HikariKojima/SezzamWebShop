@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { PhoneCall, ShoppingCart, Search, X, Calculator } from '@lucide/svelte';
 
 	import * as Command from '$lib/components/ui/command/index.js';
 	import type { Product } from '$lib/types/product';
@@ -10,7 +11,8 @@
 		searchResults,
 		onCartOpen,
 		onSearchChange,
-		onSearchResultSelect
+		onSearchResultSelect,
+		onOpenCalculator
 	}: {
 		cartCount: number;
 		searchQuery: string;
@@ -18,20 +20,23 @@
 		onCartOpen: () => void;
 		onSearchChange: (value: string) => void;
 		onSearchResultSelect: (productId: string) => void;
+		onOpenCalculator?: () => void;
 	} = $props();
 
 	let searchFocused = $state(false);
 	let showSearchDropdown = $derived(searchFocused && searchQuery.trim().length > 0);
+
+	const phoneHref = 'tel:+38761069798';
 
 	function formatPrice(price: number) {
 		return price.toFixed(2).replace('.', ',');
 	}
 
 	function getAvailabilityLabel(product: Product) {
-		if (product.availability === 'in-stock') return 'Na stanju';
+		if (product.availability === 'in-stock') return 'Dostupno';
 		if (product.availability === 'low-stock') return 'Niska zaliha';
 		if (product.availability === 'by-order') return 'Po narudžbi';
-		return 'Nema na stanju';
+		return 'Nedostupno';
 	}
 
 	function selectSearchResult(productId: string) {
@@ -53,62 +58,60 @@
 	}
 </script>
 
-<div class="bg-[#1b3022] px-4 py-3 text-center text-sm font-medium text-white sm:text-base">
-	Kvalitetni materijali dostupni za preuzimanje i narudžbe u BiH
+<div class="bg-[#1b3022] px-4 py-2 text-center text-xs font-medium text-white sm:py-2.5 sm:text-sm">
+	Kvalitetni materijali za brzu isporuku i preuzimanje u BiH
 </div>
 
-<header class="border-b border-[#c3c8c1] bg-[#fbf9f6]">
+<header class="border-b border-[#c3c8c1] bg-[#fbf9f6] sticky top-0 z-40 backdrop-blur-md">
 	<div
-		class="mx-auto grid max-w-[1280px] gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[170px_minmax(340px,520px)_1fr] lg:items-center lg:px-12"
+		class="mx-auto flex flex-col gap-3.5 px-4 py-3.5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6 xl:gap-8 lg:px-12 max-w-7xl"
 	>
-		<div class="flex items-center justify-between gap-4">
+		<!-- Left: Logo & Mobile Actions -->
+		<div class="flex items-center justify-between gap-4 shrink-0">
 			<a
 				href={resolve('/')}
-				class="text-2xl font-semibold text-[#061b0e]"
+				class="text-2xl font-bold tracking-tight text-[#061b0e]"
 				aria-label="Sezzam početna"
 			>
 				Sezzam
 			</a>
-			<div class="flex items-center gap-3 lg:hidden">
+			<div class="flex items-center gap-2 lg:hidden">
+				<a
+					href={phoneHref}
+					class="grid size-10 place-items-center rounded-full border border-[#c3c8c1] bg-white text-[#1b3022]"
+					aria-label="Pozovite nas"
+				>
+					<PhoneCall class="size-4.5" />
+				</a>
 				<button
-					class="relative grid size-11 place-items-center rounded-full border border-[#c3c8c1] bg-white text-lg"
+					class="relative grid size-10 place-items-center rounded-full border border-[#c3c8c1] bg-white text-lg transition active:scale-95"
 					aria-label="Otvori korpu"
 					onclick={onCartOpen}
 				>
-					<svg
-						class="size-5"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.8"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"
-					>
-						<path d="M6.5 6.5h14l-1.6 8.2a2 2 0 0 1-2 1.6H9.2a2 2 0 0 1-2-1.7L6 3.8H3.5" />
-						<circle cx="9.5" cy="20" r="1" />
-						<circle cx="17" cy="20" r="1" />
-					</svg>
+					<ShoppingCart class="size-4.5 text-[#061b0e]" />
 					{#if cartCount > 0}
 						<span
-							class="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-[#ba1a1a] text-xs font-semibold text-white"
-							>{cartCount}</span
+							class="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-[#1b3022] text-[11px] font-bold text-white shadow-sm animate-pulse"
 						>
+							{cartCount}
+						</span>
 					{/if}
 				</button>
 			</div>
 		</div>
 
+		<!-- Center: Search input -->
 		<div
-			class="relative w-full lg:mx-auto lg:max-w-[520px]"
+			class="relative w-full lg:max-w-xs xl:max-w-sm"
 			onfocusin={() => (searchFocused = true)}
 			onfocusout={closeSearchSoon}
 		>
-			<label>
+			<label class="relative block">
 				<span class="sr-only">Pretraga materijala</span>
+				<Search class="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#5b5f60]" />
 				<input
-					class="h-12 w-full rounded-full border border-[#c3c8c1] bg-[#f5f3f0] px-6 pr-12 text-sm text-[#1b1c1a] placeholder:text-[#5b5f60] focus:border-[#1b3022] focus:bg-white focus:ring-0"
-					placeholder="Pretraži materijale, kategorije..."
+					class="h-10.5 w-full rounded-full border border-[#c3c8c1] bg-[#f5f3f0] pl-11 pr-10 text-sm text-[#1b1c1a] placeholder:text-[#5b5f60] transition focus:border-[#1b3022] focus:bg-white focus:ring-0"
+					placeholder="Pretraži proizvode..."
 					value={searchQuery}
 					autocomplete="off"
 					oninput={(event) => onSearchChange(event.currentTarget.value)}
@@ -117,23 +120,11 @@
 			</label>
 			{#if searchQuery}
 				<button
-					class="absolute right-2 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-[#434843] transition hover:bg-white hover:text-[#061b0e]"
+					class="absolute right-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-[#434843] transition hover:bg-white hover:text-[#061b0e]"
 					aria-label="Očisti pretragu"
 					onclick={() => onSearchChange('')}
 				>
-					<svg
-						class="size-4"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.8"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"
-					>
-						<path d="M18 6 6 18" />
-						<path d="m6 6 12 12" />
-					</svg>
+					<X class="size-3.5" />
 				</button>
 			{/if}
 
@@ -143,13 +134,13 @@
 					role="presentation"
 					onpointerdown={(event) => event.preventDefault()}
 				>
-					<Command.Root shouldFilter={false} class="max-h-[320px] rounded-lg bg-white p-1">
+					<Command.Root shouldFilter={false} class="max-h-80 rounded-lg bg-white p-1">
 						<Command.List>
 							{#if searchResults.length > 0}
 								<Command.Group>
 									{#each searchResults as product (product.id)}
 										<Command.Item
-											class="cursor-pointer rounded-md px-3 py-3"
+											class="cursor-pointer rounded-md px-3 py-2.5"
 											value={product.id}
 											keywords={[
 												product.name,
@@ -162,12 +153,12 @@
 										>
 											<div class="min-w-0 flex-1">
 												<p class="truncate text-sm font-semibold text-[#061b0e]">{product.name}</p>
-												<p class="mt-1 truncate text-xs text-[#5b5f60]">
+												<p class="mt-0.5 truncate text-xs text-[#5b5f60]">
 													{formatPrice(product.price)} KM / {product.unit}
 												</p>
 											</div>
 											<span
-												class="rounded-md border border-[#c3c8c1] bg-[#fbf9f6] px-2 py-1 text-xs font-semibold text-[#434843]"
+												class="rounded-md border border-[#c3c8c1] bg-[#fbf9f6] px-2 py-0.5 text-xs font-semibold text-[#434843]"
 											>
 												{getAvailabilityLabel(product)}
 											</span>
@@ -185,58 +176,102 @@
 			{/if}
 		</div>
 
+		<!-- Right: Navigation and Actions (All in single horizontal line) -->
 		<nav
-			class="flex flex-1 items-center justify-between gap-5 lg:justify-end"
+			class="flex items-center justify-between lg:justify-end gap-4 xl:gap-6 shrink-0"
 			aria-label="Glavna navigacija"
 		>
-			<div class="flex gap-5 text-sm text-[#434843]">
-				<a class="font-semibold text-[#061b0e]" href={resolve('/')}>Materijali</a>
-				<a class="hover:text-[#061b0e]" href={resolve('/')}>Projekti</a>
-				<a class="hover:text-[#061b0e]" href={resolve('/')}>Resursi</a>
-			</div>
-			<div class="hidden items-center gap-4 lg:flex">
-				<button
-					class="grid size-11 place-items-center rounded-full border border-transparent hover:border-[#c3c8c1] hover:bg-white"
-					aria-label="Korisnički račun"
+			<!-- Mobile pill navigation -->
+			<div
+				class="inline-flex items-center rounded-full border border-[#d6d1c7] bg-[#f0ede6] p-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] lg:hidden mx-auto"
+			>
+				<a
+					class="rounded-full px-3.5 py-1.5 text-xs font-semibold text-[#434843] transition-all hover:bg-white hover:text-[#061b0e] whitespace-nowrap"
+					href={resolve('/#materijali')}
 				>
-					<svg
-						class="size-6"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.8"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"
+					Proizvodi
+				</a>
+				{#if onOpenCalculator}
+					<button
+						type="button"
+						onclick={onOpenCalculator}
+						class="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#1b3022] shadow-xs transition-all hover:bg-[#1b3022] hover:text-white whitespace-nowrap"
 					>
-						<circle cx="12" cy="8" r="3.5" />
-						<path d="M5 20a7 7 0 0 1 14 0" />
-					</svg>
-				</button>
+						<Calculator class="size-3" />
+						<span>Kalkulator</span>
+					</button>
+				{:else}
+					<a
+						class="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-[#1b3022] transition-all hover:bg-white hover:text-[#061b0e] whitespace-nowrap"
+						href={resolve('/#materijali')}
+					>
+						<Calculator class="size-3" />
+						<span>Kalkulator</span>
+					</a>
+				{/if}
+				<a
+					class="rounded-full px-3.5 py-1.5 text-xs font-semibold text-[#434843] transition-all hover:bg-white hover:text-[#061b0e] whitespace-nowrap"
+					href={resolve('/#lokacija')}
+				>
+					Lokacija
+				</a>
+			</div>
+
+			<!-- Desktop classic navigation links (never wraps, clean spacing) -->
+			<div class="hidden items-center gap-6 xl:gap-8 text-sm font-medium text-[#434843] lg:flex whitespace-nowrap shrink-0">
+				<a
+					class="transition hover:text-[#061b0e] hover:underline hover:underline-offset-4 whitespace-nowrap"
+					href={resolve('/#materijali')}
+				>
+					Proizvodi
+				</a>
+				{#if onOpenCalculator}
+					<button
+						type="button"
+						onclick={onOpenCalculator}
+						class="flex items-center gap-1.5 font-semibold text-[#1b3022] transition hover:text-[#061b0e] hover:underline hover:underline-offset-4 cursor-pointer whitespace-nowrap"
+					>
+						<Calculator class="size-4 text-[#1b3022]" />
+						<span>Kalkulator utroška</span>
+					</button>
+				{:else}
+					<a
+						class="flex items-center gap-1.5 font-semibold text-[#1b3022] transition hover:text-[#061b0e] hover:underline hover:underline-offset-4 whitespace-nowrap"
+						href={resolve('/#materijali')}
+					>
+						<Calculator class="size-4 text-[#1b3022]" />
+						<span>Kalkulator utroška</span>
+					</a>
+				{/if}
+				<a
+					class="transition hover:text-[#061b0e] hover:underline hover:underline-offset-4 whitespace-nowrap"
+					href={resolve('/#lokacija')}
+				>
+					Lokacija
+				</a>
+			</div>
+
+			<!-- Desktop call CTA & Cart -->
+			<div class="hidden items-center gap-3 lg:flex shrink-0">
+				<a
+					href={phoneHref}
+					class="inline-flex items-center gap-2 rounded-full border border-[#1b3022] bg-[#1b3022] px-4.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#061b0e] active:scale-95 whitespace-nowrap shrink-0"
+				>
+					<PhoneCall class="size-3.5 text-[#d0e9d4]" />
+					<span>Pozovite nas</span>
+				</a>
 				<button
-					class="relative grid size-11 place-items-center rounded-full border border-[#c3c8c1] bg-white text-xl"
+					class="relative grid size-10 place-items-center rounded-full border border-[#c3c8c1] bg-white text-xl transition hover:border-[#1b3022] active:scale-95 shrink-0"
 					aria-label="Otvori korpu"
 					onclick={onCartOpen}
 				>
-					<svg
-						class="size-5"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.8"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"
-					>
-						<path d="M6.5 6.5h14l-1.6 8.2a2 2 0 0 1-2 1.6H9.2a2 2 0 0 1-2-1.7L6 3.8H3.5" />
-						<circle cx="9.5" cy="20" r="1" />
-						<circle cx="17" cy="20" r="1" />
-					</svg>
+					<ShoppingCart class="size-5 text-[#061b0e]" />
 					{#if cartCount > 0}
 						<span
-							class="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-[#ba1a1a] text-xs font-semibold text-white"
-							>{cartCount}</span
+							class="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-[#1b3022] text-xs font-bold text-white shadow-sm"
 						>
+							{cartCount}
+						</span>
 					{/if}
 				</button>
 			</div>

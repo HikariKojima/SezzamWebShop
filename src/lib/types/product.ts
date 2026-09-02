@@ -1,8 +1,14 @@
 export type ProductArt = 'cement' | 'steel' | 'tile' | 'insulation';
-export type ProductCategory = 'cement' | 'armatura' | 'plocice' | 'izolacija';
+export type ProductCategory = string;
 export type ProductUnitType = 'm2' | 'vreca' | 'komad';
 export type ProductAvailability = 'in-stock' | 'low-stock' | 'by-order' | 'out-of-stock';
-export type ProductSort = 'recommended' | 'price-asc' | 'stock-desc';
+export type ProductSort = 'recommended' | 'price-asc' | 'price-desc' | 'name-asc';
+
+export type CategoryItem = {
+	id: string;
+	name: string;
+	sortOrder?: number;
+};
 
 export type ProductPriceFilter = {
 	min: number;
@@ -28,4 +34,5 @@ export type Product = {
 	category: ProductCategory;
 	availability: ProductAvailability;
 	art: ProductArt;
+	imageUrl?: string | null;
 };

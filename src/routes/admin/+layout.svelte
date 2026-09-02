@@ -8,7 +8,7 @@
 	<main class="min-h-screen bg-[#f4f1ec] text-[#1b1c1a]">
 		<header class="border-b border-[#d6d1c8] bg-[#fbf9f6]">
 			<div
-				class="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-10"
+				class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-10"
 			>
 				<div>
 					<a href={resolve('/admin')} class="text-2xl font-semibold text-[#061b0e]">Sezzam</a>
@@ -39,6 +39,12 @@
 					</a>
 					<a
 						class="rounded-full border border-[#c3c8c1] bg-white px-4 py-2 text-[#061b0e] transition hover:bg-[#f5f3f0]"
+						href={resolve('/admin/categories')}
+					>
+						Kategorije
+					</a>
+					<a
+						class="rounded-full border border-[#c3c8c1] bg-white px-4 py-2 text-[#061b0e] transition hover:bg-[#f5f3f0]"
 						href={resolve('/')}
 					>
 						Stranica
@@ -55,7 +61,7 @@
 			</div>
 		</header>
 
-		<div class="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-10">
+		<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10">
 			{@render children()}
 		</div>
 	</main>

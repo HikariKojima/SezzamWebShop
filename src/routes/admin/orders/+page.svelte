@@ -133,13 +133,46 @@
 			<article class="rounded-lg border border-[#d6d1c8] bg-white p-5">
 				<div class="grid gap-4 lg:grid-cols-[1fr_auto]">
 					<div>
-						<p class="text-sm font-semibold text-[#5b5f60]">
-							Narudžba #{order.id} · {formatDate(order.createdAt)}
-						</p>
+						<div class="flex flex-wrap items-center gap-2">
+							<p class="text-sm font-semibold text-[#5b5f60]">
+								Narudžba #{order.id} · {formatDate(order.createdAt)}
+							</p>
+							{#if order.paymentMethod === 'bank_transfer'}
+								<span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
+									Žiro račun (Firma)
+								</span>
+							{:else}
+								<span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+									Gotovina / Preuzimanje
+								</span>
+							{/if}
+						</div>
+
 						<h2 class="mt-1 text-xl font-semibold text-[#061b0e]">{order.customerName}</h2>
-						<a class="mt-1 block text-sm text-[#434843]" href={`tel:${order.customerPhone}`}>
+						<a class="mt-0.5 block text-sm text-[#434843] hover:underline" href={`tel:${order.customerPhone}`}>
 							{order.customerPhone}
 						</a>
+
+						{#if order.companyName}
+							<div class="mt-3 rounded-md bg-[#f5f3f0] p-3 text-xs text-[#434843] space-y-1">
+								<p><span class="font-bold text-[#1b1c1a]">Firma:</span> {order.companyName}</p>
+								{#if order.companyId}
+									<p><span class="font-bold text-[#1b1c1a]">ID/JIB:</span> {order.companyId}</p>
+								{/if}
+								{#if order.companyAddress}
+									<p><span class="font-bold text-[#1b1c1a]">Sjedište:</span> {order.companyAddress}</p>
+								{/if}
+								{#if order.customerEmail}
+									<p><span class="font-bold text-[#1b1c1a]">Email za predračun:</span> <a href={`mailto:${order.customerEmail}`} class="text-blue-700 underline">{order.customerEmail}</a></p>
+								{/if}
+							</div>
+						{/if}
+
+						{#if order.orderNote}
+							<p class="mt-2 text-xs italic text-[#5b5f60] bg-amber-50 border border-amber-200 rounded p-2">
+								<span class="font-bold not-italic text-amber-900">Napomena:</span> {order.orderNote}
+							</p>
+						{/if}
 					</div>
 					<div class="lg:text-right">
 						<p class="text-sm text-[#5b5f60]">Ukupno</p>

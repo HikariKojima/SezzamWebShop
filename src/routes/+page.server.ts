@@ -2,7 +2,7 @@ import { fail } from '@sveltejs/kit';
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 
 import { db } from '$lib/server/db';
-import { orderItems, orders, products as productsTable } from '$lib/server/db/schema';
+import { orderItems, orders, products as productsTable, categories as categoriesTable } from '$lib/server/db/schema';
 import type { CartItem } from '$lib/types/cart';
 import type {
 	Product,
@@ -15,29 +15,55 @@ import type { Actions } from './$types';
 
 const MAX_ITEM_QUANTITY = 10_000;
 
+import { products as fallbackProducts } from '$lib/data/products';
+
 export async function load() {
-	const rows = await db
-		.select()
-		.from(productsTable)
-		.where(eq(productsTable.active, true))
-		.orderBy(asc(productsTable.sortOrder));
+	try {
+		const rows = await db
+			.select()
+			.from(productsTable)
+			.where(eq(productsTable.active, true))
+			.orderBy(asc(productsTable.sortOrder));
 
-	const products: Product[] = rows.map((product) => ({
-		id: product.id,
-		name: product.name,
-		description: product.description,
-		price: product.priceCents / 100,
-		unit: product.unit,
-		unitType: product.unitType as ProductUnitType,
-		tag: product.tag,
-		stock: product.stockLabel,
-		stockQuantity: Math.max(product.stockQuantity - product.reservedQuantity, 0),
-		category: product.categoryId as ProductCategory,
-		availability: product.availability as ProductAvailability,
-		art: product.art as ProductArt
-	}));
+		const catRows = await db
+			.select()
+			.from(categoriesTable)
+			.orderBy(asc(categoriesTable.sortOrder));
 
-	return { products };
+		const products: Product[] = rows.map((product) => ({
+			id: product.id,
+			name: product.name,
+			description: product.description,
+			price: product.priceCents / 100,
+			unit: product.unit,
+			unitType: product.unitType as ProductUnitType,
+			tag: product.tag,
+			stock: product.stockLabel,
+			stockQuantity: Math.max(product.stockQuantity - product.reservedQuantity, 0),
+			category: product.categoryId as ProductCategory,
+			availability: product.availability as ProductAvailability,
+			art: product.art as ProductArt,
+			imageUrl: product.imageUrl
+		}));
+
+		const categories = catRows.map((cat) => ({
+			id: cat.id,
+			name: cat.name
+		}));
+
+		return { products, categories };
+	} catch (error) {
+		console.error('Baza podataka nedostupna tokom pokretanja, prikazujem fallback:', error);
+		return {
+			products: fallbackProducts,
+			categories: [
+				{ id: 'wpc', name: 'WPC Decking' },
+				{ id: 'spc', name: 'SPC Podovi' },
+				{ id: 'lvt', name: 'LVT Podovi' },
+				{ id: 'tekstilne-ploce', name: 'Tekstilne ploče' }
+			]
+		};
+	}
 }
 
 class InsufficientStockError extends Error {
@@ -112,13 +138,26 @@ export const actions: Actions = {
 		const customerName = String(formData.get('customerName') ?? '').trim();
 		const customerPhoneInput = String(formData.get('customerPhone') ?? '').trim();
 		const customerPhone = normalizeBosnianPhone(customerPhoneInput);
+		const paymentMethodInput = String(formData.get('paymentMethod') ?? 'cash_in_person').trim();
+		const paymentMethod =
+			paymentMethodInput === 'bank_transfer' ? ('bank_transfer' as const) : ('cash_in_person' as const);
+		const companyName = String(formData.get('companyName') ?? '').trim();
+		const companyId = String(formData.get('companyId') ?? '').trim();
+		const companyAddress = String(formData.get('companyAddress') ?? '').trim();
+		const customerEmail = String(formData.get('customerEmail') ?? '').trim();
+		const orderNote = String(formData.get('orderNote') ?? '').trim();
 		const cartItems = parseCartItems(formData.get('cartItems'));
 
 		if (!customerName || !customerPhoneInput) {
 			return fail(400, {
 				error: 'Unesite ime i broj telefona.',
 				customerName,
-				customerPhone: customerPhoneInput
+				customerPhone: customerPhoneInput,
+				paymentMethod,
+				companyName,
+				companyId,
+				companyAddress,
+				customerEmail
 			});
 		}
 
@@ -126,15 +165,36 @@ export const actions: Actions = {
 			return fail(400, {
 				error: 'Unesite ispravan broj telefona iz BiH, npr. 061 000 000 ili +387 61 000 000.',
 				customerName,
-				customerPhone: customerPhoneInput
+				customerPhone: customerPhoneInput,
+				paymentMethod,
+				companyName,
+				companyId,
+				companyAddress,
+				customerEmail
 			});
+		}
+
+		if (paymentMethod === 'bank_transfer') {
+			if (!companyName || !companyId || !companyAddress || !customerEmail) {
+				return fail(400, {
+					error: 'Za virmansko plaćanje (žiro račun) unesite naziv firme, ID broj, adresu i email za predračun.',
+					customerName,
+					customerPhone: customerPhoneInput,
+					paymentMethod,
+					companyName,
+					companyId,
+					companyAddress,
+					customerEmail
+				});
+			}
 		}
 
 		if (!cartItems || cartItems.length === 0) {
 			return fail(400, {
 				error: 'Korpa je prazna.',
 				customerName,
-				customerPhone: customerPhoneInput
+				customerPhone: customerPhoneInput,
+				paymentMethod
 			});
 		}
 
@@ -148,7 +208,8 @@ export const actions: Actions = {
 			return fail(400, {
 				error: 'Neki proizvodi više nisu dostupni.',
 				customerName,
-				customerPhone: customerPhoneInput
+				customerPhone: customerPhoneInput,
+				paymentMethod
 			});
 		}
 
@@ -201,8 +262,13 @@ export const actions: Actions = {
 					.values({
 						customerName,
 						customerPhone,
+						customerEmail: customerEmail || null,
+						companyName: companyName || null,
+						companyId: companyId || null,
+						companyAddress: companyAddress || null,
+						orderNote: orderNote || null,
 						status: 'pending',
-						paymentMethod: 'cash_in_person',
+						paymentMethod,
 						subtotalCents
 					})
 					.returning({ id: orders.id });
@@ -226,7 +292,8 @@ export const actions: Actions = {
 				return fail(409, {
 					error: `Proizvod „${error.productName}“ više nema traženu količinu na stanju. Osvježite korpu i pokušajte ponovo.`,
 					customerName,
-					customerPhone: customerPhoneInput
+					customerPhone: customerPhoneInput,
+					paymentMethod
 				});
 			}
 
@@ -236,7 +303,11 @@ export const actions: Actions = {
 		return {
 			success: true,
 			orderId: order.id,
-			message: `Narudžba #${order.id} je poslana. Kontaktirat ćemo vas za potvrdu.`
+			paymentMethod,
+			message:
+				paymentMethod === 'bank_transfer'
+					? `Narudžba #${order.id} je zaprimljena. Predračun sa instrukcijama za plaćanje stići će na vaš email.`
+					: `Narudžba #${order.id} je poslana. Kontaktirat ćemo vas za preuzimanje i potvrdu.`
 		};
 	}
 };
