@@ -5,6 +5,7 @@
 
 	import { getOrderStatusLabel, orderStatusOptions } from '$lib/adminOptions';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { PhoneCall } from '@lucide/svelte';
 	import type { ActionData, PageData } from './$types';
 
 	type PendingStatusChange = {
@@ -108,14 +109,18 @@
 	</p>
 {/if}
 
-<nav class="mt-6 flex flex-wrap gap-2" aria-label="Filter statusa narudžbi">
+<nav
+	class="mt-5 flex items-center gap-1.5 overflow-x-auto pb-1"
+	aria-label="Filter statusa narudžbi"
+>
 	{#each filterOptions as option (option.value)}
 		<a
-			class={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+			class={[
+				'h-9 shrink-0 rounded-full px-4 text-xs font-bold transition flex items-center justify-center cursor-pointer',
 				data.statusFilter === option.value
-					? 'border-[#1b3022] bg-[#1b3022] text-white'
-					: 'border-[#c3c8c1] bg-white text-[#061b0e] hover:bg-[#f5f3f0]'
-			}`}
+					? 'bg-[#1b3022] text-white shadow-xs'
+					: 'border border-[#c3c8c1] bg-white text-[#434843] hover:bg-[#f5f3f0]'
+			]}
 			href={resolve(
 				option.value === 'all'
 					? '/admin/orders'
@@ -127,30 +132,38 @@
 	{/each}
 </nav>
 
-<section class="mt-6 space-y-4">
+<section class="mt-5 space-y-4">
 	{#if data.orders.length > 0}
 		{#each data.orders as order (order.id)}
-			<article class="rounded-lg border border-[#d6d1c8] bg-white p-5">
-				<div class="grid gap-4 lg:grid-cols-[1fr_auto]">
+			<article class="rounded-2xl border border-[#d6d1c8] bg-white p-4 sm:p-5 shadow-2xs">
+				<div class="grid gap-3 lg:grid-cols-[1fr_auto]">
 					<div>
 						<div class="flex flex-wrap items-center gap-2">
-							<p class="text-sm font-semibold text-[#5b5f60]">
+							<p class="text-xs font-bold text-[#5b5f60]">
 								Narudžba #{order.id} · {formatDate(order.createdAt)}
 							</p>
 							{#if order.paymentMethod === 'bank_transfer'}
-								<span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
+								<span
+									class="rounded-full bg-blue-100 px-2.5 py-0.5 text-[11px] font-bold text-blue-800"
+								>
 									Žiro račun (Firma)
 								</span>
 							{:else}
-								<span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+								<span
+									class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800"
+								>
 									Gotovina / Preuzimanje
 								</span>
 							{/if}
 						</div>
 
-						<h2 class="mt-1 text-xl font-semibold text-[#061b0e]">{order.customerName}</h2>
-						<a class="mt-0.5 block text-sm text-[#434843] hover:underline" href={`tel:${order.customerPhone}`}>
-							{order.customerPhone}
+						<h2 class="mt-1.5 text-lg sm:text-xl font-bold text-[#061b0e]">{order.customerName}</h2>
+						<a
+							class="mt-1 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#1b3022] hover:underline"
+							href={`tel:${order.customerPhone}`}
+						>
+							<PhoneCall class="size-3.5 text-[#1b3022]" />
+							<span>{order.customerPhone}</span>
 						</a>
 
 						{#if order.companyName}
@@ -160,17 +173,28 @@
 									<p><span class="font-bold text-[#1b1c1a]">ID/JIB:</span> {order.companyId}</p>
 								{/if}
 								{#if order.companyAddress}
-									<p><span class="font-bold text-[#1b1c1a]">Sjedište:</span> {order.companyAddress}</p>
+									<p>
+										<span class="font-bold text-[#1b1c1a]">Sjedište:</span>
+										{order.companyAddress}
+									</p>
 								{/if}
 								{#if order.customerEmail}
-									<p><span class="font-bold text-[#1b1c1a]">Email za predračun:</span> <a href={`mailto:${order.customerEmail}`} class="text-blue-700 underline">{order.customerEmail}</a></p>
+									<p>
+										<span class="font-bold text-[#1b1c1a]">Email za predračun:</span>
+										<a href={`mailto:${order.customerEmail}`} class="text-blue-700 underline"
+											>{order.customerEmail}</a
+										>
+									</p>
 								{/if}
 							</div>
 						{/if}
 
 						{#if order.orderNote}
-							<p class="mt-2 text-xs italic text-[#5b5f60] bg-amber-50 border border-amber-200 rounded p-2">
-								<span class="font-bold not-italic text-amber-900">Napomena:</span> {order.orderNote}
+							<p
+								class="mt-2 text-xs italic text-[#5b5f60] bg-amber-50 border border-amber-200 rounded p-2"
+							>
+								<span class="font-bold not-italic text-amber-900">Napomena:</span>
+								{order.orderNote}
 							</p>
 						{/if}
 					</div>
@@ -208,14 +232,14 @@
 				<form
 					method="POST"
 					action="?/updateOrderStatus"
-					class="mt-5 flex items-center gap-3"
+					class="mt-4 flex flex-wrap items-center gap-3 border-t border-[#f0eee9] pt-3"
 					use:enhance={enhanceStatusUpdate(order.id)}
 				>
 					<input type="hidden" name="orderId" value={order.id} />
-					<label class="flex items-center gap-2 text-sm font-semibold text-[#1b1c1a]">
-						Status
+					<label class="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#1b1c1a]">
+						Promijeni status:
 						<select
-							class="h-10 rounded-md border border-[#c3c8c1] bg-[#fbf9f6] px-3 text-sm outline-none focus:border-[#1b3022] focus:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+							class="h-10 rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3 text-xs sm:text-sm font-bold outline-none transition focus:border-[#1b3022] focus:bg-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
 							name="status"
 							disabled={order.status === 'completed' ||
 								order.status === 'cancelled' ||

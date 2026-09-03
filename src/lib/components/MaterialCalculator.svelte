@@ -1,14 +1,10 @@
 <script lang="ts">
 	import {
 		Calculator,
-		Layers,
-		Check,
 		Info,
 		Plus,
-		ArrowRight,
 		Square,
 		Circle,
-		Maximize2,
 		Grid
 	} from '@lucide/svelte';
 	import type { Product } from '$lib/types/product';
@@ -16,10 +12,12 @@
 	let {
 		products = [],
 		initialProduct = null,
+		embedded = false,
 		onAddToCart
 	}: {
 		products?: Product[];
 		initialProduct?: Product | null;
+		embedded?: boolean;
 		onAddToCart?: (productId: string, quantity: number) => void;
 	} = $props();
 
@@ -173,53 +171,91 @@
 </script>
 
 <div
-	class="overflow-hidden rounded-2xl border border-[#c3c8c1] bg-white shadow-[0_18px_44px_rgba(27,28,26,0.06)]"
+	class={embedded
+		? 'w-full bg-white'
+		: 'overflow-hidden rounded-2xl border border-[#c3c8c1] bg-white shadow-[0_18px_44px_rgba(27,28,26,0.06)]'}
 >
-	<!-- Top header -->
-	<div class="border-b border-[#e3e2e0] bg-[#f5f3f0] px-6 py-5 sm:px-8">
-		<div class="flex flex-wrap items-center justify-between gap-4">
-			<div class="flex items-center gap-3">
-				<div class="grid size-10 place-items-center rounded-xl bg-[#1b3022] text-white shadow-sm">
-					<Calculator class="size-5" />
+	{#if !embedded}
+		<!-- Top header for standalone page -->
+		<div class="border-b border-[#e3e2e0] bg-[#f5f3f0] px-4 py-4 sm:px-8 sm:py-5">
+			<div class="flex flex-wrap items-center justify-between gap-4">
+				<div class="flex items-center gap-3">
+					<div class="grid size-10 place-items-center rounded-xl bg-[#1b3022] text-white shadow-sm">
+						<Calculator class="size-5" />
+					</div>
+					<div>
+						<h3 class="text-xl font-bold text-[#061b0e]">Kalkulator potrošnje materijala</h3>
+						<p class="text-xs text-[#5b5f60]">
+							Automatski proračun sa građevinskom rezervom prilagođenom obliku prostora
+						</p>
+					</div>
 				</div>
-				<div>
-					<h3 class="text-xl font-bold text-[#061b0e]">Kalkulator potrošnje materijala</h3>
-					<p class="text-xs text-[#5b5f60]">
-						Automatski proračun sa građevinskom rezervom prilagođenom obliku prostora
-					</p>
+
+				<!-- Category Tabs -->
+				<div class="flex rounded-full border border-[#c3c8c1] bg-white p-1">
+					<button
+						class={[
+							'rounded-full px-5 py-1.5 text-xs font-bold transition sm:text-sm',
+							selectedCategory === 'decking'
+								? 'bg-[#1b3022] text-white shadow-sm'
+								: 'text-[#434843] hover:text-[#061b0e]'
+						]}
+						onclick={() => handleCategoryChange('decking')}
+					>
+						Decking / Terase
+					</button>
+					<button
+						class={[
+							'rounded-full px-5 py-1.5 text-xs font-bold transition sm:text-sm',
+							selectedCategory === 'laminat'
+								? 'bg-[#1b3022] text-white shadow-sm'
+								: 'text-[#434843] hover:text-[#061b0e]'
+						]}
+						onclick={() => handleCategoryChange('laminat')}
+					>
+						Podne obloge
+					</button>
 				</div>
 			</div>
-
-			<!-- Category Tabs -->
-			<div class="flex rounded-full border border-[#c3c8c1] bg-white p-1">
+		</div>
+	{:else}
+		<!-- Sleek Category Switcher when embedded inside modal/sheet -->
+		<div class="mb-4 flex justify-center">
+			<div class="inline-flex rounded-full border border-[#c3c8c1] bg-[#f5f3f0] p-1 shadow-xs">
 				<button
+					type="button"
 					class={[
-						'rounded-full px-5 py-1.5 text-xs font-bold transition sm:text-sm',
-						selectedCategory === 'laminat'
-							? 'bg-[#1b3022] text-white shadow-sm'
-							: 'text-[#434843] hover:text-[#061b0e]'
-					]}
-					onclick={() => handleCategoryChange('laminat')}
-				>
-					Laminat
-				</button>
-				<button
-					class={[
-						'rounded-full px-5 py-1.5 text-xs font-bold transition sm:text-sm',
+						'rounded-full px-4 py-1.5 text-xs font-bold transition sm:text-sm cursor-pointer',
 						selectedCategory === 'decking'
 							? 'bg-[#1b3022] text-white shadow-sm'
 							: 'text-[#434843] hover:text-[#061b0e]'
 					]}
 					onclick={() => handleCategoryChange('decking')}
 				>
-					Decking / Terase
+					WPC Decking / Terase
+				</button>
+				<button
+					type="button"
+					class={[
+						'rounded-full px-4 py-1.5 text-xs font-bold transition sm:text-sm cursor-pointer',
+						selectedCategory === 'laminat'
+							? 'bg-[#1b3022] text-white shadow-sm'
+							: 'text-[#434843] hover:text-[#061b0e]'
+					]}
+					onclick={() => handleCategoryChange('laminat')}
+				>
+					SPC & LVT Podovi
 				</button>
 			</div>
 		</div>
-	</div>
+	{/if}
 
 	<!-- Main grid -->
-	<div class="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.15fr_1fr]">
+	<div
+		class={embedded
+			? 'grid gap-5 lg:grid-cols-[1.15fr_1fr]'
+			: 'grid gap-6 p-4 sm:p-8 lg:grid-cols-[1.15fr_1fr]'}
+	>
 		<!-- Left: Shape selection & Dimension inputs -->
 		<div class="space-y-6">
 			<!-- 1. Visual Shape Selector -->
@@ -306,9 +342,7 @@
 
 			<!-- 2. Dynamic Input Fields Based on Selected Shape -->
 			<div class="rounded-xl border border-[#e3e2e0] bg-[#fbf9f6] p-4">
-				<span class="block text-xs font-bold text-[#061b0e] mb-3">
-					2. Unesite dimenzije:
-				</span>
+				<span class="block text-xs font-bold text-[#061b0e] mb-3"> 2. Unesite dimenzije: </span>
 
 				{#if selectedShape === 'rectangle'}
 					<div class="grid grid-cols-2 gap-3">
@@ -323,7 +357,10 @@
 									bind:value={length}
 									class="h-10 w-full rounded-lg border border-[#c3c8c1] bg-white px-3 pr-8 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
 								/>
-								<span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]">m</span>
+								<span
+									class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]"
+									>m</span
+								>
 							</div>
 						</label>
 
@@ -338,7 +375,10 @@
 									bind:value={width}
 									class="h-10 w-full rounded-lg border border-[#c3c8c1] bg-white px-3 pr-8 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
 								/>
-								<span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]">m</span>
+								<span
+									class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]"
+									>m</span
+								>
 							</div>
 						</label>
 					</div>
@@ -400,7 +440,10 @@
 									bind:value={diameter}
 									class="h-10 w-full rounded-lg border border-[#c3c8c1] bg-white px-3 pr-8 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
 								/>
-								<span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]">m</span>
+								<span
+									class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]"
+									>m</span
+								>
 							</div>
 						</label>
 
@@ -411,7 +454,10 @@
 								bind:checked={isHalfCircle}
 								class="size-4 rounded text-[#1b3022] focus:ring-[#1b3022]"
 							/>
-							<label for="half-circle-toggle" class="text-xs font-medium text-[#1b1c1a] cursor-pointer">
+							<label
+								for="half-circle-toggle"
+								class="text-xs font-medium text-[#1b1c1a] cursor-pointer"
+							>
 								Ovo je polukružna terasa / balkon (podijeli površinu na pola)
 							</label>
 						</div>
@@ -429,7 +475,10 @@
 								placeholder="npr. 25"
 								class="h-10 w-full rounded-lg border border-[#c3c8c1] bg-white px-3 pr-10 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
 							/>
-							<span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]">m²</span>
+							<span
+								class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]"
+								>m²</span
+							>
 						</div>
 					</label>
 				{/if}
@@ -457,8 +506,12 @@
 						{/each}
 					</select>
 				{:else}
-					<div class="mt-2 rounded-xl border border-[#e3e2e0] bg-[#fbf9f6] p-3 text-xs text-[#5b5f60]">
-						Nema unesenih artikala u kategoriji {selectedCategory === 'laminat' ? 'Laminat' : 'Decking'}. Možete koristiti kalkulator za izračun potrebne kvadrature i paketa.
+					<div
+						class="mt-2 rounded-xl border border-[#e3e2e0] bg-[#fbf9f6] p-3 text-xs text-[#5b5f60]"
+					>
+						Nema unesenih artikala u kategoriji {selectedCategory === 'laminat'
+							? 'Laminat'
+							: 'Decking'}. Možete koristiti kalkulator za izračun potrebne kvadrature i paketa.
 					</div>
 				{/if}
 			</div>
@@ -480,7 +533,8 @@
 						{#if selectedShape === 'circle'}
 							Kružno i lučno rezanje dasaka stvara veći škart, pa se preporučuje 15% rezerve.
 						{:else if selectedShape === 'l-shape'}
-							Unutrašnji uglovi i preklopni spojevi zahtijevaju 12% rezerve radi preciznog uklapanja.
+							Unutrašnji uglovi i preklopni spojevi zahtijevaju 12% rezerve radi preciznog
+							uklapanja.
 						{:else}
 							Građevinski standard nalaže 10% rezerve za dilatacijske razmake, rezove uz zid i lom.
 						{/if}
@@ -490,7 +544,9 @@
 		</div>
 
 		<!-- Right: Calculation summary card -->
-		<div class="flex flex-col justify-between rounded-2xl border border-[#c3c8c1] bg-[#fbf9f6] p-6 shadow-sm">
+		<div
+			class="flex flex-col justify-between rounded-2xl border border-[#c3c8c1] bg-[#fbf9f6] p-4 sm:p-6 shadow-sm"
+		>
 			<div>
 				<h4 class="text-xs font-bold uppercase tracking-wider text-[#5b5f60]">
 					Rezultati proračuna
@@ -508,18 +564,24 @@
 				</div>
 
 				<div class="mt-4">
-					<p class="text-xs font-semibold text-[#5b5f60]">Ukupno potrebno naručiti (sa rezervom):</p>
+					<p class="text-xs font-semibold text-[#5b5f60]">
+						Ukupno potrebno naručiti (sa rezervom):
+					</p>
 					<p class="text-3xl font-black tracking-tight text-[#061b0e]">
 						{grossArea} <span class="text-xl font-semibold">m²</span>
 					</p>
 				</div>
 
 				<!-- Category specific breakdowns -->
-				<div class="mt-5 space-y-2 rounded-xl border border-[#e3e2e0] bg-white p-4 text-xs text-[#434843]">
+				<div
+					class="mt-5 space-y-2 rounded-xl border border-[#e3e2e0] bg-white p-4 text-xs text-[#434843]"
+				>
 					{#if selectedCategory === 'laminat'}
 						<div class="flex justify-between py-1 border-b border-[#f5f3f0]">
 							<span>Preporučeno paketa (~{LAMINAT_PACK_M2} m²/pak):</span>
-							<span class="font-bold text-[#061b0e]">{laminatPacks} paketa ({laminatActualM2} m²)</span>
+							<span class="font-bold text-[#061b0e]"
+								>{laminatPacks} paketa ({laminatActualM2} m²)</span
+							>
 						</div>
 						<div class="flex justify-between py-1 border-b border-[#f5f3f0]">
 							<span>Podloga / spužvica:</span>
@@ -536,7 +598,9 @@
 						</div>
 						<div class="flex justify-between py-1 border-b border-[#f5f3f0]">
 							<span>Podkonstrukcijske grede:</span>
-							<span class="font-semibold text-[#061b0e]">cca {deckingSubconstructionMeters} m dužnih</span>
+							<span class="font-semibold text-[#061b0e]"
+								>cca {deckingSubconstructionMeters} m dužnih</span
+							>
 						</div>
 						<div class="flex justify-between py-1">
 							<span>Montažne kopče i vijci:</span>
@@ -549,14 +613,20 @@
 					<div class="mt-4 flex items-center justify-between border-t border-[#e3e2e0] pt-4">
 						<div>
 							<p class="text-xs text-[#5b5f60]">
-								Okvirna cijena za {Math.ceil(grossArea)} {selectedProduct.unit}:
+								Okvirna cijena za {Math.ceil(grossArea)}
+								{selectedProduct.unit}:
 							</p>
 							<p class="text-2xl font-black text-[#061b0e]">{formatPrice(estimatedTotal)} KM</p>
 						</div>
 					</div>
 				{:else}
-					<div class="mt-4 rounded-xl border border-dashed border-[#c3c8c1] bg-white p-3.5 text-center text-xs text-[#5b5f60]">
-						<p class="font-medium">Odaberite artikal iznad ukoliko želite izračunati okvirnu cijenu i dodati materijal u korpu.</p>
+					<div
+						class="mt-4 rounded-xl border border-dashed border-[#c3c8c1] bg-white p-3.5 text-center text-xs text-[#5b5f60]"
+					>
+						<p class="font-medium">
+							Odaberite artikal iznad ukoliko želite izračunati okvirnu cijenu i dodati materijal u
+							korpu.
+						</p>
 					</div>
 				{/if}
 			</div>

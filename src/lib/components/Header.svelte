@@ -59,7 +59,7 @@
 </script>
 
 <div class="bg-[#1b3022] px-4 py-2 text-center text-xs font-medium text-white sm:py-2.5 sm:text-sm">
-	Kvalitetni materijali za brzu isporuku i preuzimanje u BiH
+	Premium WPC decking sistemi i podne obloge sa brzom isporukom u BiH
 </div>
 
 <header class="border-b border-[#c3c8c1] bg-[#fbf9f6] sticky top-0 z-40 backdrop-blur-md">
@@ -70,10 +70,14 @@
 		<div class="flex items-center justify-between gap-4 shrink-0">
 			<a
 				href={resolve('/')}
-				class="text-2xl font-bold tracking-tight text-[#061b0e]"
-				aria-label="Sezzam početna"
+				class="flex items-center gap-2.5 transition opacity-95 hover:opacity-100"
+				aria-label="Sezzam - Premium Decking Sistemi"
 			>
-				Sezzam
+				<img
+					src="/images/logo/logo.png"
+					alt="Sezzam - Premium Decking Sistemi"
+					class="h-8 sm:h-10 w-auto object-contain"
+				/>
 			</a>
 			<div class="flex items-center gap-2 lg:hidden">
 				<a
@@ -107,11 +111,11 @@
 			onfocusout={closeSearchSoon}
 		>
 			<label class="relative block">
-				<span class="sr-only">Pretraga materijala</span>
+				<span class="sr-only">Pretraga decking sistema i podnih obloga</span>
 				<Search class="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#5b5f60]" />
 				<input
 					class="h-10.5 w-full rounded-full border border-[#c3c8c1] bg-[#f5f3f0] pl-11 pr-10 text-sm text-[#1b1c1a] placeholder:text-[#5b5f60] transition focus:border-[#1b3022] focus:bg-white focus:ring-0"
-					placeholder="Pretraži proizvode..."
+					placeholder="Pretraži WPC decking, SPC/LVT podove..."
 					value={searchQuery}
 					autocomplete="off"
 					oninput={(event) => onSearchChange(event.currentTarget.value)}
@@ -218,7 +222,9 @@
 			</div>
 
 			<!-- Desktop classic navigation links (never wraps, clean spacing) -->
-			<div class="hidden items-center gap-6 xl:gap-8 text-sm font-medium text-[#434843] lg:flex whitespace-nowrap shrink-0">
+			<div
+				class="hidden items-center gap-6 xl:gap-8 text-sm font-medium text-[#434843] lg:flex whitespace-nowrap shrink-0"
+			>
 				<a
 					class="transition hover:text-[#061b0e] hover:underline hover:underline-offset-4 whitespace-nowrap"
 					href={resolve('/#materijali')}

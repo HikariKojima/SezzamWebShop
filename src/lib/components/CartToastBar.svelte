@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ShoppingBag, ArrowRight } from '@lucide/svelte';
-	import { fly, fade } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 
 	let {
 		cartCount,

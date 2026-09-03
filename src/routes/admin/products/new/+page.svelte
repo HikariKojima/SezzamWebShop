@@ -20,7 +20,8 @@
 	</a>
 	<h1 class="mt-4 text-3xl font-bold tracking-tight text-[#061b0e]">Dodaj proizvod</h1>
 	<p class="mt-2 max-w-2xl text-sm leading-6 text-[#5b5f60]">
-		Unesite detalje o proizvodu. Možete odabrati sliku sa uređaja koja će se automatski optimizovati za webshop.
+		Unesite detalje o proizvodu. Možete odabrati sliku sa uređaja koja će se automatski optimizovati
+		za webshop.
 	</p>
 </section>
 

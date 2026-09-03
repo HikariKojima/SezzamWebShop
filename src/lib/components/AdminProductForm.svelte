@@ -71,13 +71,13 @@
 	}
 </script>
 
-<div class="rounded-2xl border border-[#d6d1c8] bg-white p-6 sm:p-8 shadow-xs">
-	<div class="grid gap-6 sm:grid-cols-2">
+<div class="rounded-2xl border border-[#d6d1c8] bg-white p-4 sm:p-8 shadow-xs">
+	<div class="grid gap-5 sm:gap-6 sm:grid-cols-2">
 		<!-- 1. Naziv -->
 		<label class="block sm:col-span-2">
 			<span class="text-sm font-bold text-[#1b1c1a]">Naziv proizvoda</span>
 			<input
-				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
+				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-base sm:text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
 				name="name"
 				placeholder="npr. WPC Decking Premium Antracit 4m"
 				value={product?.name ?? ''}
@@ -97,7 +97,9 @@
 					value={product ? product.price.toFixed(2) : '0.00'}
 					required
 				/>
-				<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]">KM</span>
+				<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]"
+					>KM</span
+				>
 			</div>
 		</label>
 
@@ -250,16 +252,16 @@
 		</div>
 
 		<!-- 12. FOTOGRAFIJA UPLOAD & PREVIEW (Visual Upload Dropzone) -->
-		<div class="sm:col-span-2 rounded-2xl border-2 border-dashed border-[#c3c8c1] bg-[#fbf9f6] p-5 sm:p-6 transition hover:border-[#1b3022]/60">
+		<div
+			class="sm:col-span-2 rounded-2xl border-2 border-dashed border-[#c3c8c1] bg-[#fbf9f6] p-5 sm:p-6 transition hover:border-[#1b3022]/60"
+		>
 			<div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
 				<!-- Live preview container -->
-				<div class="relative grid size-28 shrink-0 place-items-center overflow-hidden rounded-xl border border-[#c3c8c1] bg-white shadow-xs">
+				<div
+					class="relative grid size-28 shrink-0 place-items-center overflow-hidden rounded-xl border border-[#c3c8c1] bg-white shadow-xs"
+				>
 					{#if previewUrl}
-						<img
-							src={previewUrl}
-							alt="Pregled artikla"
-							class="h-full w-full object-cover"
-						/>
+						<img src={previewUrl} alt="Pregled artikla" class="h-full w-full object-cover" />
 					{:else}
 						<div class="flex flex-col items-center justify-center text-[#8a8f8a] p-2 text-center">
 							<ImageIcon class="size-8" />
@@ -270,7 +272,9 @@
 
 				<!-- Upload actions -->
 				<div class="flex-1 min-w-0">
-					<span class="block text-sm font-bold text-[#1b1c1a]">Fotografija proizvoda (Odaberite sa računara ili mobitela)</span>
+					<span class="block text-sm font-bold text-[#1b1c1a]"
+						>Fotografija proizvoda (Odaberite sa računara ili mobitela)</span
+					>
 					<p class="mt-1 text-xs text-[#5b5f60]">
 						Podržani formati: JPG, PNG, WEBP. Slika se automatski optimizuje i postavlja na webshop.
 					</p>
@@ -292,7 +296,9 @@
 						</label>
 
 						{#if selectedFileName}
-							<div class="inline-flex items-center gap-2 rounded-xl border border-[#d0e9d4] bg-[#f2fbf3] px-3 py-2 text-xs font-bold text-[#1b5e20]">
+							<div
+								class="inline-flex items-center gap-2 rounded-xl border border-[#d0e9d4] bg-[#f2fbf3] px-3 py-2 text-xs font-bold text-[#1b5e20]"
+							>
 								<Check class="size-3.5" />
 								<span class="truncate max-w-50">{selectedFileName}</span>
 								<button
@@ -336,7 +342,7 @@
 	<!-- Submit CTA -->
 	<div class="mt-8 flex items-center justify-end gap-4 border-t border-[#e3e2e0] pt-6">
 		<button
-			class="inline-flex h-12 items-center justify-center rounded-full bg-[#1b3022] px-8 text-sm font-bold text-white shadow-md transition hover:bg-[#061b0e] active:scale-98 cursor-pointer"
+			class="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-full bg-[#1b3022] px-8 text-sm font-bold text-white shadow-md transition hover:bg-[#061b0e] active:scale-98 cursor-pointer"
 			type="submit"
 		>
 			{submitLabel}

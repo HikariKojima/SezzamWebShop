@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import { Calculator, Check } from '@lucide/svelte';
+	import { Calculator } from '@lucide/svelte';
 
 	import type { Product } from '$lib/types/product';
 

@@ -18,7 +18,9 @@
 	>
 		← Nazad na proizvode
 	</a>
-	<p class="mt-4 text-xs font-bold uppercase tracking-wider text-[#5b5f60]">ID: {data.product.id}</p>
+	<p class="mt-4 text-xs font-bold uppercase tracking-wider text-[#5b5f60]">
+		ID: {data.product.id}
+	</p>
 	<h1 class="mt-1 text-3xl font-bold tracking-tight text-[#061b0e]">Uredi proizvod</h1>
 </section>
 

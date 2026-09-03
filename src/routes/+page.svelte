@@ -12,6 +12,8 @@
 	import Hero from '$lib/components/Hero.svelte';
 	import MaterialCalculator from '$lib/components/MaterialCalculator.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
+	import SEO from '$lib/components/SEO.svelte';
+	import { env } from '$env/dynamic/public';
 	import type { CartItem } from '$lib/types/cart';
 	import type { Product, ProductFilters, ProductSort } from '$lib/types/product';
 	import type { ActionData, PageData } from './$types';
@@ -127,9 +129,7 @@
 
 		const existingItem = cartItems.find((item) => item.productId === productId);
 		const allowedQuantity =
-			product.availability === 'by-order'
-				? quantity
-				: Math.min(quantity, product.stockQuantity);
+			product.availability === 'by-order' ? quantity : Math.min(quantity, product.stockQuantity);
 
 		if (existingItem) {
 			cartItems = cartItems.map((item) =>
@@ -236,15 +236,84 @@
 	function resetFilters() {
 		selectedFilters = { ...defaultFilters };
 	}
+
+	const siteUrl = (env.PUBLIC_SITE_URL || 'https://sezzam.ba').replace(/\/$/, '');
+
+	let structuredData = $derived({
+		'@context': 'https://schema.org',
+		'@graph': [
+			{
+				'@type': 'HomeAndConstructionBusiness',
+				'@id': `${siteUrl}/#business`,
+				name: 'Sezzam - Premium Decking Sistemi',
+				alternateName: 'Sezzam WPC Decking i Podne Obloge',
+				description:
+					'Specijalizovani za vrhunski WPC kompozitni decking za terase, balkone i bazene, te moderne SPC i LVT podne obloge u Bosni i Hercegovini.',
+				url: siteUrl,
+				logo: `${siteUrl}/images/logo/logo.png`,
+				image: `${siteUrl}/images/logo/logo.png`,
+				telephone: '+38761069798',
+				email: 'info@sezzam.ba',
+				priceRange: '$$',
+				address: {
+					'@type': 'PostalAddress',
+					addressCountry: 'BA',
+					addressRegion: 'Bosna i Hercegovina'
+				},
+				hasMap:
+					'https://maps.google.com/maps?vet=10CAAQoqAOahcKEwjo1LDRnsiWAxUAAAAAHQAAAAAQCA..i&pvq=Cg0vZy8xMXlqaGpwMjB6IgwKBnNlenphbRACGAM&lqi=CgpzZXp6YW0gYmloSJ6QqvjBvYCACFoUEAAYACIKc2V6emFtIGJpaDICaHKSAQl3YXJlaG91c2U&fvr=1&cs=1&um=1&ie=UTF-8&fb=1&gl=ba&sa=X&ftid=0x4758b5007a0f380d:0x6bf45d9d0e160531'
+			},
+			{
+				'@type': 'WebSite',
+				'@id': `${siteUrl}/#website`,
+				url: siteUrl,
+				name: 'Sezzam - Premium Decking Sistemi',
+				inLanguage: 'bs-BA',
+				publisher: {
+					'@id': `${siteUrl}/#business`
+				}
+			},
+			{
+				'@type': 'ItemList',
+				name: 'Sezzam WPC Decking i Podne Obloge',
+				itemListElement: products.slice(0, 30).map((prod, index) => ({
+					'@type': 'ListItem',
+					position: index + 1,
+					item: {
+						'@type': 'Product',
+						name: prod.name,
+						description: prod.description,
+						image: prod.imageUrl
+							? prod.imageUrl.startsWith('http')
+								? prod.imageUrl
+								: `${siteUrl}${prod.imageUrl}`
+							: undefined,
+						offers: {
+							'@type': 'Offer',
+							price: prod.price.toFixed(2),
+							priceCurrency: 'BAM',
+							availability:
+								prod.availability === 'in-stock'
+									? 'https://schema.org/InStock'
+									: prod.availability === 'by-order'
+										? 'https://schema.org/PreOrder'
+										: 'https://schema.org/LimitedAvailability'
+						}
+					}
+				}))
+			}
+		]
+	});
 </script>
 
-<svelte:head>
-	<title>Sezzam | Građevinski materijali u BiH</title>
-	<meta
-		name="description"
-		content="Premium građevinski materijali, decking i laminat za profesionalne projekte u Bosni i Hercegovini."
-	/>
-</svelte:head>
+<SEO
+	title="Sezzam | Premium WPC Decking Sistemi i Podne Obloge BiH"
+	description="Specijalizovani za vrhunski WPC decking za terase, balkone i bazene, te SPC i LVT podne obloge u BiH. Izračunajte kvadrate i naručite online uz brzu dostavu."
+	keywords="wpc decking, decking sistemi, wpc decking bih, wpc daske, podne obloge, decking za terase, spc podovi, lvt podovi, lvt, bazeni decking, sezzam, sezzam ba, sarajevo"
+	canonical="/"
+	image="/images/logo/logo.png"
+	jsonLd={structuredData}
+/>
 
 <main class="min-h-screen bg-[#fbf9f6] text-[#1b1c1a] flex flex-col">
 	<Header
@@ -262,14 +331,15 @@
 
 	<Hero />
 
-
-
 	<!-- Catalog / Materials Section -->
 	<section id="materijali" class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-12 flex-1">
 		<div class="mb-8">
-			<h2 class="text-3xl font-bold tracking-tight text-[#061b0e]">Katalog materijala</h2>
+			<h2 class="text-3xl font-bold tracking-tight text-[#061b0e]">
+				Katalog decking sistema i podnih obloga
+			</h2>
 			<p class="mt-2 text-sm text-[#434843]">
-				Filtrirajte i pretražite materijale spremne za narudžbu i isporuku.
+				Filtrirajte i izaberite WPC decking daske, potkonstrukciju i podne obloge spremne za
+				isporuku.
 			</p>
 		</div>
 
@@ -316,21 +386,32 @@
 	</section>
 
 	<!-- Dedicated Calculator Dialog for Product Cards -->
+	<!-- Dedicated Calculator Dialog for Product Cards (Bottom sheet on mobile, modal on desktop) -->
 	<Dialog.Root bind:open={calculatorDialogOpen}>
-		<Dialog.Content class="sm:max-w-175 border-[#c3c8c1] bg-white p-0 overflow-hidden">
-			<Dialog.Header class="p-6 pb-0">
-				<Dialog.Title class="text-xl font-bold text-[#061b0e]">
+		<Dialog.Content
+			class="fixed bottom-0 left-0 right-0 top-auto z-50 flex max-h-[88vh] w-full max-w-full translate-x-0 translate-y-0 flex-col overflow-hidden rounded-b-none rounded-t-3xl border-[#c3c8c1] bg-white p-0 shadow-2xl transition-all sm:top-1/2 sm:left-1/2 sm:max-h-[90vh] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
+		>
+			<!-- Mobile drag / sheet indicator -->
+			<div class="mx-auto mt-2.5 h-1.5 w-12 shrink-0 rounded-full bg-[#d6d1c8] sm:hidden"></div>
+
+			<Dialog.Header class="px-5 pt-3 pb-2 sm:px-6 sm:pt-6 sm:pb-0 shrink-0">
+				<Dialog.Title class="text-lg font-bold text-[#061b0e] sm:text-xl">
 					Kalkulator utroška površine
 				</Dialog.Title>
 				<Dialog.Description class="text-xs text-[#5b5f60]">
 					Proračun potrebne količine za {calculatorSelectedProduct?.name ?? 'odabrani materijal'}
 				</Dialog.Description>
 			</Dialog.Header>
-			<div class="p-4 sm:p-6">
+
+			<div class="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
 				<MaterialCalculator
 					{products}
 					initialProduct={calculatorSelectedProduct}
-					onAddToCart={addCalculatedToCart}
+					embedded={true}
+					onAddToCart={(productId, qty) => {
+						addCalculatedToCart(productId, qty);
+						calculatorDialogOpen = false;
+					}}
 				/>
 			</div>
 		</Dialog.Content>
@@ -338,7 +419,7 @@
 
 	<!-- Attention-grabbing Cart Toast Bar (Bottom action bar) -->
 	<CartToastBar
-		cartCount={cartCount}
+		{cartCount}
 		subtotal={cartSubtotal}
 		visible={!cartOpen}
 		onOpenCart={() => (cartOpen = true)}

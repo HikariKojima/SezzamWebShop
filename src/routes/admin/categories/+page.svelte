@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { Plus, Trash2, FolderTree, Tag, ArrowRight } from '@lucide/svelte';
+	import { Plus, Trash2, FolderTree, Tag } from '@lucide/svelte';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -12,15 +12,13 @@
 
 <section class="flex flex-wrap items-center justify-between gap-4">
 	<div>
-		<a
-			class="text-sm font-semibold text-[#434843] hover:text-[#061b0e]"
-			href={resolve('/admin')}
-		>
+		<a class="text-sm font-semibold text-[#434843] hover:text-[#061b0e]" href={resolve('/admin')}>
 			← Nazad na pregled
 		</a>
 		<h1 class="mt-2 text-3xl font-bold tracking-tight text-[#061b0e]">Kategorije proizvoda</h1>
 		<p class="mt-1 text-sm text-[#5b5f60]">
-			Dodajte nove kategorije ili upravljajte postojećim. Sve aktivne kategorije se odmah prikazuju na webshopu.
+			Dodajte nove kategorije ili upravljajte postojećim. Sve aktivne kategorije se odmah prikazuju
+			na webshopu.
 		</p>
 	</div>
 
@@ -63,18 +61,27 @@
 					<div>
 						<div class="flex items-center gap-2.5">
 							<span class="text-base font-bold text-[#1b1c1a]">{cat.name}</span>
-							<span class="rounded-md border border-[#c3c8c1] bg-[#fbf9f6] px-2 py-0.5 text-xs font-semibold text-[#5b5f60]">
+							<span
+								class="rounded-md border border-[#c3c8c1] bg-[#fbf9f6] px-2 py-0.5 text-xs font-semibold text-[#5b5f60]"
+							>
 								id: {cat.id}
 							</span>
 						</div>
 						<p class="mt-1 text-xs text-[#5b5f60]">
-							{cat.productCount} {cat.productCount === 1 ? 'proizvod' : 'proizvoda'} u ovoj kategoriji
+							{cat.productCount}
+							{cat.productCount === 1 ? 'proizvod' : 'proizvoda'} u ovoj kategoriji
 						</p>
 					</div>
 
 					<div class="flex items-center gap-2">
 						{#if cat.productCount === 0}
-							<form method="POST" action="?/delete" onsubmit={(e) => !confirm(`Da li sigurno želite obrisati kategoriju '${cat.name}'?`) && e.preventDefault()}>
+							<form
+								method="POST"
+								action="?/delete"
+								onsubmit={(e) =>
+									!confirm(`Da li sigurno želite obrisati kategoriju '${cat.name}'?`) &&
+									e.preventDefault()}
+							>
 								<input type="hidden" name="id" value={cat.id} />
 								<button
 									type="submit"

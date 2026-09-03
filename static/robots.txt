@@ -1,3 +1,9 @@
-# allow crawling everything by default
+# Robots.txt za Sezzam WebShop (sezzam.ba)
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin/*
+
+# Lokacija sitemapa za Google, Bing i ostale pretraživače
+Sitemap: https://sezzam.ba/sitemap.xml

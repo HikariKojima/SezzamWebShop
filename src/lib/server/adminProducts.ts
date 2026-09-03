@@ -85,7 +85,12 @@ export async function parseProductForm(formData: FormData) {
 	let imageUrl = String(formData.get('imageUrl') ?? '').trim() || null;
 
 	const imageFile = formData.get('imageFile');
-	if (imageFile && typeof imageFile === 'object' && 'size' in imageFile && (imageFile as File).size > 0) {
+	if (
+		imageFile &&
+		typeof imageFile === 'object' &&
+		'size' in imageFile &&
+		(imageFile as File).size > 0
+	) {
 		try {
 			const file = imageFile as File;
 

@@ -1,4 +1,3 @@
-
 <script lang="ts">
 	import { ArrowUpDown, Check } from '@lucide/svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
@@ -193,7 +192,10 @@
 			>
 				{priceLabel}
 			</Popover.Trigger>
-			<Popover.Content align="start" class="w-80 border-[#c3c8c1] bg-white p-4 shadow-xl rounded-xl">
+			<Popover.Content
+				align="start"
+				class="w-80 border-[#c3c8c1] bg-white p-4 shadow-xl rounded-xl"
+			>
 				<div class="grid gap-4">
 					<div>
 						<p class="text-sm font-semibold text-[#061b0e]">Raspon cijene</p>
@@ -264,8 +266,13 @@
 				<span class="text-[#5b5f60] font-normal hidden sm:inline">Sortiraj:</span>
 				<span class="font-bold text-[#061b0e]">{currentSortLabel}</span>
 			</Popover.Trigger>
-			<Popover.Content align="end" class="w-56 border-[#c3c8c1] bg-white p-1.5 shadow-xl rounded-xl">
-				<p class="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#5b5f60]">Poredaj po</p>
+			<Popover.Content
+				align="end"
+				class="w-56 border-[#c3c8c1] bg-white p-1.5 shadow-xl rounded-xl"
+			>
+				<p class="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#5b5f60]">
+					Poredaj po
+				</p>
 				<div class="grid gap-0.5">
 					{#each sortOptions as option (option.value)}
 						<Popover.Close

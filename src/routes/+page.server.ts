@@ -2,7 +2,12 @@ import { fail } from '@sveltejs/kit';
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 
 import { db } from '$lib/server/db';
-import { orderItems, orders, products as productsTable, categories as categoriesTable } from '$lib/server/db/schema';
+import {
+	orderItems,
+	orders,
+	products as productsTable,
+	categories as categoriesTable
+} from '$lib/server/db/schema';
 import type { CartItem } from '$lib/types/cart';
 import type {
 	Product,
@@ -25,10 +30,7 @@ export async function load() {
 			.where(eq(productsTable.active, true))
 			.orderBy(asc(productsTable.sortOrder));
 
-		const catRows = await db
-			.select()
-			.from(categoriesTable)
-			.orderBy(asc(categoriesTable.sortOrder));
+		const catRows = await db.select().from(categoriesTable).orderBy(asc(categoriesTable.sortOrder));
 
 		const products: Product[] = rows.map((product) => ({
 			id: product.id,
@@ -140,7 +142,9 @@ export const actions: Actions = {
 		const customerPhone = normalizeBosnianPhone(customerPhoneInput);
 		const paymentMethodInput = String(formData.get('paymentMethod') ?? 'cash_in_person').trim();
 		const paymentMethod =
-			paymentMethodInput === 'bank_transfer' ? ('bank_transfer' as const) : ('cash_in_person' as const);
+			paymentMethodInput === 'bank_transfer'
+				? ('bank_transfer' as const)
+				: ('cash_in_person' as const);
 		const companyName = String(formData.get('companyName') ?? '').trim();
 		const companyId = String(formData.get('companyId') ?? '').trim();
 		const companyAddress = String(formData.get('companyAddress') ?? '').trim();
@@ -177,7 +181,8 @@ export const actions: Actions = {
 		if (paymentMethod === 'bank_transfer') {
 			if (!companyName || !companyId || !companyAddress || !customerEmail) {
 				return fail(400, {
-					error: 'Za virmansko plaćanje (žiro račun) unesite naziv firme, ID broj, adresu i email za predračun.',
+					error:
+						'Za virmansko plaćanje (žiro račun) unesite naziv firme, ID broj, adresu i email za predračun.',
 					customerName,
 					customerPhone: customerPhoneInput,
 					paymentMethod,

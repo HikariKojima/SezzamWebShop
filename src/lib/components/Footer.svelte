@@ -4,7 +4,7 @@
 
 	const googleMapsUrl =
 		'https://maps.google.com/maps?vet=10CAAQoqAOahcKEwjo1LDRnsiWAxUAAAAAHQAAAAAQCA..i&pvq=Cg0vZy8xMXlqaGpwMjB6IgwKBnNlenphbRACGAM&lqi=CgpzZXp6YW0gYmloSJ6QqvjBvYCACFoUEAAYACIKc2V6emFtIGJpaDICaHKSAQl3YXJlaG91c2U&fvr=1&cs=1&um=1&ie=UTF-8&fb=1&gl=ba&sa=X&ftid=0x4758b5007a0f380d:0x6bf45d9d0e160531';
-	const phoneNumber = '+387 61 069 798'	;
+	const phoneNumber = '+387 61 069 798';
 	const phoneHref = 'tel:+38761069798';
 	const emailAddress = 'info@sezzam.ba';
 </script>
@@ -14,20 +14,29 @@
 		<div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
 			<!-- Col 1: Brand & About -->
 			<div>
-				<a href={resolve('/')} class="text-2xl font-bold tracking-tight text-white">
-					Sezzam
+				<a href={resolve('/')} class="inline-block transition opacity-95 hover:opacity-100">
+					<div class="rounded-lg bg-white/95 px-3 py-1.5 inline-block shadow-sm">
+						<img
+							src="/images/logo/logo.png"
+							alt="Sezzam - Premium Decking Sistemi"
+							class="h-8 w-auto object-contain"
+						/>
+					</div>
 				</a>
 				<p class="mt-3 text-xs font-semibold uppercase tracking-wider text-[#8da391]">
-					Građevinski materijali
+					Premium Decking Sistemi & Podne Obloge
 				</p>
 				<p class="mt-4 text-sm leading-relaxed text-[#c0cac2]">
-					Vrhunski materijali za profesionalne izvođače i kućne projekte. Brza isporuka i jednostavno naručivanje u BiH.
+					Vrhunski WPC decking za terase, balkone i bazene, te kvalitetne SPC i LVT podne obloge.
+					Dugotrajna rješenja sa brzom isporukom u BiH.
 				</p>
 			</div>
 
 			<!-- Col 2: Location & Maps -->
 			<div>
-				<p class="text-xs font-semibold uppercase tracking-wider text-[#8da391]">Lokacija & Skladište</p>
+				<p class="text-xs font-semibold uppercase tracking-wider text-[#8da391]">
+					Lokacija & Skladište
+				</p>
 				<div class="mt-4 space-y-3">
 					<div class="flex items-start gap-2.5 text-sm text-[#e3ece4]">
 						<MapPin class="mt-0.5 size-4 shrink-0 text-[#8da391]" />
@@ -52,7 +61,9 @@
 
 			<!-- Col 3: Contact & Hours -->
 			<div>
-				<p class="text-xs font-semibold uppercase tracking-wider text-[#8da391]">Kontakt & Narudžbe</p>
+				<p class="text-xs font-semibold uppercase tracking-wider text-[#8da391]">
+					Kontakt & Narudžbe
+				</p>
 				<ul class="mt-4 space-y-3 text-sm text-[#e3ece4]">
 					<li>
 						<a
@@ -97,15 +108,15 @@
 						</a>
 					</li>
 					<li>
-						<a href={resolve('/admin')} class="transition hover:text-white">
-							Admin prijava
-						</a>
+						<a href={resolve('/admin')} class="transition hover:text-white"> Admin prijava </a>
 					</li>
 				</ul>
 			</div>
 		</div>
 
-		<div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-[#8da391] sm:flex-row">
+		<div
+			class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-[#8da391] sm:flex-row"
+		>
 			<p>© {new Date().getFullYear()} Sezzam. Sva prava zadržana.</p>
 			<p>Građevinski materijali BiH</p>
 		</div>

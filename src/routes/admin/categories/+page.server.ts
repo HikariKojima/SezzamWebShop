@@ -7,18 +7,20 @@ import { categories, products } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
 function slugify(value: string) {
-	return value
-		.toLowerCase()
-		.replace(/đ/g, 'dj')
-		.replace(/č/g, 'c')
-		.replace(/ć/g, 'c')
-		.replace(/š/g, 's')
-		.replace(/ž/g, 'z')
-		.normalize('NFD')
-		.replace(/[\u0300-\u036f]/g, '')
-		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/^-+|-+$/g, '')
-		.slice(0, 60) || 'kategorija';
+	return (
+		value
+			.toLowerCase()
+			.replace(/đ/g, 'dj')
+			.replace(/č/g, 'c')
+			.replace(/ć/g, 'c')
+			.replace(/š/g, 's')
+			.replace(/ž/g, 'z')
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/^-+|-+$/g, '')
+			.slice(0, 60) || 'kategorija'
+	);
 }
 
 export const load: PageServerLoad = async ({ cookies }) => {
@@ -99,7 +101,8 @@ export const actions: Actions = {
 
 		if (productInCat) {
 			return fail(400, {
-				error: 'Nije moguće obrisati kategoriju u kojoj već postoje proizvodi. Prvo premjestite ili obrišite proizvode.'
+				error:
+					'Nije moguće obrisati kategoriju u kojoj već postoje proizvodi. Prvo premjestite ili obrišite proizvode.'
 			});
 		}
 

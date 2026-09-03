@@ -76,7 +76,9 @@
 		</Sheet.Header>
 
 		{#if orderResult?.success}
-			<div class="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center overflow-y-auto">
+			<div
+				class="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center overflow-y-auto"
+			>
 				<div
 					class="grid size-16 place-items-center rounded-full bg-[#d0e9d4] text-[#1b3022] shadow-sm"
 				>
@@ -90,15 +92,23 @@
 				</p>
 
 				{#if orderResult.paymentMethod === 'bank_transfer'}
-					<div class="mt-6 w-full rounded-xl border border-[#c3c8c1] bg-white p-4 text-left text-xs">
+					<div
+						class="mt-6 w-full rounded-xl border border-[#c3c8c1] bg-white p-4 text-left text-xs"
+					>
 						<p class="font-bold text-[#061b0e] flex items-center gap-1.5 text-sm">
 							<Building2 class="size-4 text-[#1b3022]" />
 							<span>Instrukcije za virmansko plaćanje (Predračun)</span>
 						</p>
 						<div class="mt-3 space-y-1.5 text-[#434843]">
 							<p><span class="font-semibold text-[#1b1c1a]">Primalac:</span> Sezzam d.o.o.</p>
-							<p><span class="font-semibold text-[#1b1c1a]">Svrha doznake:</span> Uplata po narudžbi #{orderResult.orderId}</p>
-							<p><span class="font-semibold text-[#1b1c1a]">Poziv na broj:</span> {orderResult.orderId}</p>
+							<p>
+								<span class="font-semibold text-[#1b1c1a]">Svrha doznake:</span> Uplata po narudžbi
+								#{orderResult.orderId}
+							</p>
+							<p>
+								<span class="font-semibold text-[#1b1c1a]">Poziv na broj:</span>
+								{orderResult.orderId}
+							</p>
 							<p class="mt-2 text-[11px] text-[#5b5f60]">
 								Zvanični predračun sa svim stavkama bit će poslan na uneseni email za preduzeće.
 							</p>
@@ -149,7 +159,9 @@
 							<div class="rounded-xl border border-[#c3c8c1] bg-white p-4 shadow-sm">
 								<div class="flex items-start justify-between gap-3">
 									<div>
-										<h4 class="font-semibold leading-snug text-[#1b1c1a] text-sm">{item.product.name}</h4>
+										<h4 class="font-semibold leading-snug text-[#1b1c1a] text-sm">
+											{item.product.name}
+										</h4>
 										<p class="mt-0.5 text-xs text-[#5b5f60]">
 											{formatPrice(item.product.price)} KM / {item.product.unit}
 										</p>
@@ -163,7 +175,9 @@
 									</button>
 								</div>
 
-								<div class="mt-3 flex items-center justify-between gap-4 border-t border-[#f5f3f0] pt-3">
+								<div
+									class="mt-3 flex items-center justify-between gap-4 border-t border-[#f5f3f0] pt-3"
+								>
 									<div
 										class="grid h-9 grid-cols-[2rem_1.75rem_2rem] items-center rounded-full border border-[#c3c8c1] bg-[#fbf9f6] text-[#061b0e]"
 									>
@@ -196,7 +210,9 @@
 					<!-- Checkout Step with Payment Selection -->
 					<div class="space-y-4">
 						<div class="flex items-center justify-between">
-							<span class="text-xs font-semibold uppercase tracking-wider text-[#5b5f60]">Podaci za narudžbu</span>
+							<span class="text-xs font-semibold uppercase tracking-wider text-[#5b5f60]"
+								>Podaci za narudžbu</span
+							>
 							<button
 								type="button"
 								class="text-xs font-semibold text-[#1b3022] underline hover:text-[#061b0e]"
@@ -258,9 +274,13 @@
 
 							{#if paymentMethod === 'bank_transfer'}
 								<!-- Company specific fields -->
-								<div class="rounded-lg border border-[#d0e9d4] bg-[#f2fbf3] p-3 text-xs text-[#1b3022]">
+								<div
+									class="rounded-lg border border-[#d0e9d4] bg-[#f2fbf3] p-3 text-xs text-[#1b3022]"
+								>
 									<p class="font-semibold">Virmansko plaćanje za pravna lica</p>
-									<p class="mt-0.5 text-[11px] text-[#2a4d33]">Unesite podatke firme za automatsko izdavanje predračuna.</p>
+									<p class="mt-0.5 text-[11px] text-[#2a4d33]">
+										Unesite podatke firme za automatsko izdavanje predračuna.
+									</p>
 								</div>
 
 								<label class="grid gap-1 text-xs font-medium text-[#434843]">
@@ -309,7 +329,9 @@
 
 							<!-- Contact person fields -->
 							<label class="grid gap-1 text-xs font-medium text-[#434843]">
-								<span>{paymentMethod === 'bank_transfer' ? 'Kontakt osoba *' : 'Ime i prezime *'}</span>
+								<span
+									>{paymentMethod === 'bank_transfer' ? 'Kontakt osoba *' : 'Ime i prezime *'}</span
+								>
 								<input
 									class="h-10 rounded-lg border border-[#c3c8c1] bg-[#fbf9f6] px-3 text-sm text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
 									name="customerName"
@@ -358,7 +380,9 @@
 				</div>
 
 				{#if orderResult?.error}
-					<p class="mt-3 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 font-medium">
+					<p
+						class="mt-3 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700 font-medium"
+					>
 						{orderResult.error}
 					</p>
 				{/if}
