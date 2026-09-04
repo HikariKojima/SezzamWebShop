@@ -30,3 +30,27 @@ select {
 button {
 	cursor: pointer;
 }
+
+/* Discreet, sleek scrollbar for dialogs & drawers */
+.custom-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: #d6d1c8 transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+	width: 5px;
+	height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+	background: #d6d1c8;
+	border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: #8a8f8a;
+}

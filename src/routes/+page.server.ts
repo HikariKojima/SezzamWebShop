@@ -37,6 +37,7 @@ export async function load() {
 			name: product.name,
 			description: product.description,
 			price: product.priceCents / 100,
+			originalPrice: product.originalPriceCents ? product.originalPriceCents / 100 : null,
 			unit: product.unit,
 			unitType: product.unitType as ProductUnitType,
 			tag: product.tag,

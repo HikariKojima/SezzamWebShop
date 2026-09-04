@@ -19,6 +19,7 @@ export type ProductFilters = {
 	category: ProductCategory | null;
 	price: ProductPriceFilter | null;
 	availability: ProductAvailability | null;
+	onlySale?: boolean;
 };
 
 export type Product = {
@@ -26,6 +27,7 @@ export type Product = {
 	name: string;
 	description: string;
 	price: number;
+	originalPrice?: number | null;
 	unit: string;
 	unitType: ProductUnitType;
 	tag: string;

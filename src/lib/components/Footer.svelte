@@ -14,14 +14,12 @@
 		<div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
 			<!-- Col 1: Brand & About -->
 			<div>
-				<a href={resolve('/')} class="inline-block transition opacity-95 hover:opacity-100">
-					<div class="rounded-lg bg-white/95 px-3 py-1.5 inline-block shadow-sm">
-						<img
-							src="/images/logo/logo.png"
-							alt="Sezzam - Premium Decking Sistemi"
-							class="h-8 w-auto object-contain"
-						/>
-					</div>
+				<a
+					href={resolve('/')}
+					class="inline-block text-2xl font-bold tracking-tight text-white transition hover:opacity-85"
+					aria-label="Sezzam početna"
+				>
+					Sezzam
 				</a>
 				<p class="mt-3 text-xs font-semibold uppercase tracking-wider text-[#8da391]">
 					Premium Decking Sistemi & Podne Obloge

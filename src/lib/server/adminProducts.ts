@@ -19,6 +19,7 @@ type ProductFormValues = {
 	name: string;
 	description: string;
 	priceCents: number;
+	originalPriceCents: number | null;
 	unit: string;
 	unitType: ProductUnitTypeValue;
 	categoryId: ProductCategoryValue;
@@ -72,6 +73,8 @@ export async function parseProductForm(formData: FormData) {
 	const name = parseRequiredText(formData, 'name', 180);
 	const description = parseRequiredText(formData, 'description', 2000);
 	const priceCents = parsePriceCents(formData.get('price'));
+	const rawOriginalPrice = parsePriceCents(formData.get('originalPrice'));
+	const originalPriceCents = rawOriginalPrice && rawOriginalPrice > 0 ? rawOriginalPrice : null;
 	const unit = parseRequiredText(formData, 'unit', 80);
 	const unitType = parseOption(formData.get('unitType'), unitTypeValues);
 	const categoryId = parseOption(formData.get('categoryId'), categoryValues);
@@ -134,6 +137,7 @@ export async function parseProductForm(formData: FormData) {
 		name,
 		description,
 		priceCents,
+		originalPriceCents,
 		unit,
 		unitType,
 		categoryId,

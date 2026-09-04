@@ -146,6 +146,19 @@
 			Svi proizvodi
 		</button>
 
+		<button
+			type="button"
+			class={[
+				'whitespace-nowrap rounded-full border px-4 py-2 text-xs font-semibold transition duration-200 sm:text-sm cursor-pointer inline-flex items-center gap-1.5',
+				selectedFilters.onlySale
+					? 'border-[#ba1a1a] bg-[#ba1a1a] text-white shadow-[0_8px_20px_rgba(186,26,26,0.25)] font-bold'
+					: 'border-[#c3c8c1] bg-white text-[#1b1c1a] hover:border-[#ba1a1a]/50 hover:bg-[#fff5f5]'
+			]}
+			onclick={() => onFilterChange('onlySale', !selectedFilters.onlySale)}
+		>
+			<span>🔥 Akcija</span>
+		</button>
+
 		{#each filterGroups as group (group.key)}
 			<Popover.Root>
 				<Popover.Trigger

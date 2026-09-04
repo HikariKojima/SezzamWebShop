@@ -162,9 +162,21 @@
 										<h4 class="font-semibold leading-snug text-[#1b1c1a] text-sm">
 											{item.product.name}
 										</h4>
-										<p class="mt-0.5 text-xs text-[#5b5f60]">
-											{formatPrice(item.product.price)} KM / {item.product.unit}
-										</p>
+										<div class="mt-0.5 flex items-center gap-1.5 text-xs">
+											{#if item.product.originalPrice && item.product.originalPrice > item.product.price}
+												<span class="text-[#8a8f8a] line-through font-medium">
+													{formatPrice(item.product.originalPrice)} KM
+												</span>
+												<span class="font-bold text-[#ba1a1a]">
+													{formatPrice(item.product.price)} KM
+												</span>
+											{:else}
+												<span class="text-[#5b5f60]">
+													{formatPrice(item.product.price)} KM
+												</span>
+											{/if}
+											<span class="text-[#5b5f60]">/ {item.product.unit}</span>
+										</div>
 									</div>
 									<button
 										class="rounded-full px-2 py-1 text-xs font-semibold text-[#5b5f60] transition hover:bg-[#efeeeb] hover:text-[#ba1a1a]"

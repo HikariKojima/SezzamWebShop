@@ -12,6 +12,7 @@
 		name: string;
 		description: string;
 		price: number;
+		originalPrice?: number | null;
 		unit: string;
 		unitType: string;
 		categoryId: string;
@@ -39,11 +40,30 @@
 	let selectedFileName = $state<string>('');
 	let manualUrl = $state<string>('');
 
+	let priceInput = $state('');
+	let originalPriceInput = $state('');
+
+	let discountPercent = $derived.by(() => {
+		const cur = Number(String(priceInput).replace(',', '.'));
+		const orig = Number(String(originalPriceInput).replace(',', '.'));
+		if (Number.isFinite(cur) && Number.isFinite(orig) && orig > cur && cur > 0) {
+			return Math.round(((orig - cur) / orig) * 100);
+		}
+		return null;
+	});
+
 	let availableCategories = $derived(
 		categories && categories.length > 0
 			? categories.map((c) => ({ value: c.id, label: c.name }))
 			: productCategoryOptions
 	);
+
+	$effect(() => {
+		if (product) {
+			priceInput = product.price ? product.price.toFixed(2) : '';
+			originalPriceInput = product.originalPrice ? product.originalPrice.toFixed(2) : '';
+		}
+	});
 
 	$effect(() => {
 		if (product?.imageUrl && !selectedFileName) {
@@ -85,23 +105,50 @@
 			/>
 		</label>
 
-		<!-- 2. Cijena -->
-		<label class="block">
-			<span class="text-sm font-bold text-[#1b1c1a]">Cijena (KM)</span>
-			<div class="relative mt-2">
-				<input
-					class="h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 pr-12 text-sm font-bold text-[#061b0e] outline-none transition focus:border-[#1b3022] focus:bg-white"
-					name="price"
-					inputmode="decimal"
-					placeholder="45.00"
-					value={product ? product.price.toFixed(2) : '0.00'}
-					required
-				/>
-				<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]"
-					>KM</span
-				>
-			</div>
-		</label>
+		<!-- 2. Cijena & Stara cijena (Akcija) -->
+		<div class="grid gap-4 sm:col-span-2 sm:grid-cols-2">
+			<label class="block">
+				<span class="text-sm font-bold text-[#1b1c1a]">Prodajna cijena (KM)</span>
+				<div class="relative mt-2">
+					<input
+						class="h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 pr-12 text-sm font-bold text-[#061b0e] outline-none transition focus:border-[#1b3022] focus:bg-white"
+						name="price"
+						inputmode="decimal"
+						placeholder="45.00"
+						bind:value={priceInput}
+						required
+					/>
+					<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]">KM</span>
+				</div>
+				<span class="mt-1 block text-[11px] text-[#5b5f60]">Aktivna cijena po kojoj kupac naručuje artikal.</span>
+			</label>
+
+			<label class="block">
+				<div class="flex items-center justify-between">
+					<span class="text-sm font-bold text-[#1b1c1a]">Stara / Redovna cijena (KM)</span>
+					<span class="text-[11px] font-medium text-[#737973]">Opcionalno</span>
+				</div>
+				<div class="relative mt-2">
+					<input
+						class="h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 pr-12 text-sm font-bold text-[#061b0e] outline-none transition focus:border-[#1b3022] focus:bg-white"
+						name="originalPrice"
+						inputmode="decimal"
+						placeholder="npr. 55.00"
+						bind:value={originalPriceInput}
+					/>
+					<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]">KM</span>
+				</div>
+				{#if discountPercent}
+					<span class="mt-1.5 inline-flex items-center gap-1.5 rounded-md bg-[#ba1a1a]/10 px-2.5 py-1 text-xs font-bold text-[#ba1a1a]">
+						🔥 Akcija aktivna: -{discountPercent}% popusta za kupca
+					</span>
+				{:else}
+					<span class="mt-1 block text-[11px] text-[#5b5f60]">
+						Unesite višu cijenu ukoliko želite da stara cijena bude precrtana.
+					</span>
+				{/if}
+			</label>
+		</div>
 
 		<!-- 3. Kategorija -->
 		<label class="block">

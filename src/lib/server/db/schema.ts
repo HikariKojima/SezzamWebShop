@@ -26,6 +26,7 @@ export const products = pgTable(
 		name: varchar('name', { length: 180 }).notNull(),
 		description: text('description').notNull(),
 		priceCents: integer('price_cents').notNull(),
+		originalPriceCents: integer('original_price_cents'),
 		unit: varchar('unit', { length: 80 }).notNull(),
 		unitType: varchar('unit_type', { length: 40 }).notNull(),
 		tag: varchar('tag', { length: 80 }).notNull(),

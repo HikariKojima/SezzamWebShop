@@ -220,12 +220,12 @@
 		</div>
 	{:else}
 		<!-- Sleek Category Switcher when embedded inside modal/sheet -->
-		<div class="mb-4 flex justify-center">
+		<div class="mb-3 flex justify-center">
 			<div class="inline-flex rounded-full border border-[#c3c8c1] bg-[#f5f3f0] p-1 shadow-xs">
 				<button
 					type="button"
 					class={[
-						'rounded-full px-4 py-1.5 text-xs font-bold transition sm:text-sm cursor-pointer',
+						'rounded-full px-4 py-1 text-xs font-bold transition sm:text-sm cursor-pointer',
 						selectedCategory === 'decking'
 							? 'bg-[#1b3022] text-white shadow-sm'
 							: 'text-[#434843] hover:text-[#061b0e]'
@@ -237,7 +237,7 @@
 				<button
 					type="button"
 					class={[
-						'rounded-full px-4 py-1.5 text-xs font-bold transition sm:text-sm cursor-pointer',
+						'rounded-full px-4 py-1 text-xs font-bold transition sm:text-sm cursor-pointer',
 						selectedCategory === 'laminat'
 							? 'bg-[#1b3022] text-white shadow-sm'
 							: 'text-[#434843] hover:text-[#061b0e]'
@@ -253,14 +253,14 @@
 	<!-- Main grid -->
 	<div
 		class={embedded
-			? 'grid gap-5 lg:grid-cols-[1.15fr_1fr]'
-			: 'grid gap-6 p-4 sm:p-8 lg:grid-cols-[1.15fr_1fr]'}
+			? 'grid gap-5 md:grid-cols-[1.1fr_1fr] lg:gap-8'
+			: 'grid gap-6 p-4 sm:p-8 md:grid-cols-[1.1fr_1fr] lg:gap-8'}
 	>
 		<!-- Left: Shape selection & Dimension inputs -->
-		<div class="space-y-6">
+		<div class="space-y-3.5 sm:space-y-4">
 			<!-- 1. Visual Shape Selector -->
 			<div>
-				<span class="block text-xs font-bold uppercase tracking-wider text-[#5b5f60]">
+				<span class="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#5b5f60]">
 					1. Odaberite oblik prostorije ili terase:
 				</span>
 				<div class="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
@@ -268,23 +268,23 @@
 					<button
 						type="button"
 						class={[
-							'flex min-w-0 flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition active:scale-95 cursor-pointer',
+							'flex min-w-0 flex-col items-center justify-center rounded-xl border p-2.5 sm:p-3.5 text-center transition active:scale-95 cursor-pointer',
 							selectedShape === 'rectangle'
 								? 'border-[#1b3022] bg-[#1b3022] text-white shadow-sm'
 								: 'border-[#c3c8c1] bg-[#fbf9f6] text-[#1b1c1a] hover:bg-white hover:border-[#1b3022]/40'
 						]}
 						onclick={() => (selectedShape = 'rectangle')}
 					>
-						<Square class="size-5 mb-1.5 shrink-0" />
-						<span class="w-full truncate text-[11.5px] font-bold sm:text-xs">Pravougaonik</span>
-						<span class="text-[10px] opacity-80 mt-0.5 whitespace-nowrap">+10% rezerva</span>
+						<Square class="size-5 sm:size-6 mb-1.5 shrink-0" />
+						<span class="w-full truncate text-xs sm:text-sm font-bold">Pravougaonik</span>
+						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap">+10% rezerva</span>
 					</button>
 
 					<!-- L-Shape -->
 					<button
 						type="button"
 						class={[
-							'flex min-w-0 flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition active:scale-95 cursor-pointer',
+							'flex min-w-0 flex-col items-center justify-center rounded-xl border p-2.5 sm:p-3.5 text-center transition active:scale-95 cursor-pointer',
 							selectedShape === 'l-shape'
 								? 'border-[#1b3022] bg-[#1b3022] text-white shadow-sm'
 								: 'border-[#c3c8c1] bg-[#fbf9f6] text-[#1b1c1a] hover:bg-white hover:border-[#1b3022]/40'
@@ -292,7 +292,7 @@
 						onclick={() => (selectedShape = 'l-shape')}
 					>
 						<svg
-							class="size-5 mb-1.5 shrink-0"
+							class="size-5 sm:size-6 mb-1.5 shrink-0"
 							viewBox="0 0 24 24"
 							fill="none"
 							stroke="currentColor"
@@ -302,51 +302,51 @@
 						>
 							<path d="M4 4v16h16v-7h-9V4H4z" />
 						</svg>
-						<span class="w-full truncate text-[11.5px] font-bold sm:text-xs">L-Oblik</span>
-						<span class="text-[10px] opacity-80 mt-0.5 whitespace-nowrap">+12% rezerva</span>
+						<span class="w-full truncate text-xs sm:text-sm font-bold">L-Oblik</span>
+						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap">+12% rezerva</span>
 					</button>
 
 					<!-- Circle -->
 					<button
 						type="button"
 						class={[
-							'flex min-w-0 flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition active:scale-95 cursor-pointer',
+							'flex min-w-0 flex-col items-center justify-center rounded-xl border p-2.5 sm:p-3.5 text-center transition active:scale-95 cursor-pointer',
 							selectedShape === 'circle'
 								? 'border-[#1b3022] bg-[#1b3022] text-white shadow-sm'
 								: 'border-[#c3c8c1] bg-[#fbf9f6] text-[#1b1c1a] hover:bg-white hover:border-[#1b3022]/40'
 						]}
 						onclick={() => (selectedShape = 'circle')}
 					>
-						<Circle class="size-5 mb-1.5 shrink-0" />
-						<span class="w-full truncate text-[11.5px] font-bold sm:text-xs">Krug / Luk</span>
-						<span class="text-[10px] opacity-80 mt-0.5 whitespace-nowrap">+15% rezerva</span>
+						<Circle class="size-5 sm:size-6 mb-1.5 shrink-0" />
+						<span class="w-full truncate text-xs sm:text-sm font-bold">Krug / Luk</span>
+						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap">+15% rezerva</span>
 					</button>
 
 					<!-- Custom area -->
 					<button
 						type="button"
 						class={[
-							'flex min-w-0 flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition active:scale-95 cursor-pointer',
+							'flex min-w-0 flex-col items-center justify-center rounded-xl border p-2.5 sm:p-3.5 text-center transition active:scale-95 cursor-pointer',
 							selectedShape === 'custom'
 								? 'border-[#1b3022] bg-[#1b3022] text-white shadow-sm'
 								: 'border-[#c3c8c1] bg-[#fbf9f6] text-[#1b1c1a] hover:bg-white hover:border-[#1b3022]/40'
 						]}
 						onclick={() => (selectedShape = 'custom')}
 					>
-						<Grid class="size-5 mb-1.5 shrink-0" />
-						<span class="w-full truncate text-[11.5px] font-bold sm:text-xs">Direktan m²</span>
-						<span class="text-[10px] opacity-80 mt-0.5 whitespace-nowrap">+10% rezerva</span>
+						<Grid class="size-5 sm:size-6 mb-1.5 shrink-0" />
+						<span class="w-full truncate text-xs sm:text-sm font-bold">Direktan m²</span>
+						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap">+10% rezerva</span>
 					</button>
 				</div>
 			</div>
 
 			<!-- 2. Dynamic Input Fields Based on Selected Shape -->
-			<div class="rounded-xl border border-[#e3e2e0] bg-[#fbf9f6] p-4">
-				<span class="block text-xs font-bold text-[#061b0e] mb-3"> 2. Unesite dimenzije: </span>
+			<div class="rounded-2xl border border-[#e3e2e0] bg-[#fbf9f6] p-4 sm:p-5">
+				<span class="block text-xs sm:text-sm font-bold text-[#061b0e] mb-3"> 2. Unesite dimenzije: </span>
 
 				{#if selectedShape === 'rectangle'}
-					<div class="grid grid-cols-2 gap-3">
-						<label class="grid gap-1 text-xs font-medium text-[#434843]">
+					<div class="grid grid-cols-2 gap-4">
+						<label class="grid gap-1.5 text-xs sm:text-sm font-medium text-[#434843]">
 							<span>Dužina (m)</span>
 							<div class="relative">
 								<input
@@ -355,16 +355,16 @@
 									max="100"
 									step="0.1"
 									bind:value={length}
-									class="h-10 w-full rounded-lg border border-[#c3c8c1] bg-white px-3 pr-8 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
+									class="h-11 sm:h-12 w-full rounded-xl border border-[#c3c8c1] bg-white px-3.5 pr-10 text-base sm:text-lg font-bold text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
 								/>
 								<span
-									class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]"
+									class="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#5b5f60]"
 									>m</span
 								>
 							</div>
 						</label>
 
-						<label class="grid gap-1 text-xs font-medium text-[#434843]">
+						<label class="grid gap-1.5 text-xs sm:text-sm font-medium text-[#434843]">
 							<span>Širina (m)</span>
 							<div class="relative">
 								<input
@@ -373,10 +373,10 @@
 									max="100"
 									step="0.1"
 									bind:value={width}
-									class="h-10 w-full rounded-lg border border-[#c3c8c1] bg-white px-3 pr-8 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
+									class="h-11 sm:h-12 w-full rounded-xl border border-[#c3c8c1] bg-white px-3.5 pr-10 text-base sm:text-lg font-bold text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
 								/>
 								<span
-									class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#5b5f60]"
+									class="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#5b5f60]"
 									>m</span
 								>
 							</div>
@@ -496,7 +496,7 @@
 					<select
 						id="calculator-product-select"
 						bind:value={selectedProductId}
-						class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white cursor-pointer"
+						class="mt-2 h-12 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-4 text-sm sm:text-base font-bold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white cursor-pointer"
 					>
 						<option value="">-- Odaberite artikal (opcionalno) --</option>
 						{#each relevantProducts as product (product.id)}
@@ -507,7 +507,7 @@
 					</select>
 				{:else}
 					<div
-						class="mt-2 rounded-xl border border-[#e3e2e0] bg-[#fbf9f6] p-3 text-xs text-[#5b5f60]"
+						class="mt-2 rounded-xl border border-[#e3e2e0] bg-[#fbf9f6] p-3 text-xs sm:text-sm text-[#5b5f60]"
 					>
 						Nema unesenih artikala u kategoriji {selectedCategory === 'laminat'
 							? 'Laminat'
@@ -518,9 +518,9 @@
 
 			<!-- Industry info badge -->
 			<div
-				class="flex items-start gap-3 rounded-xl border border-[#d0e9d4] bg-[#f2fbf3] p-3.5 text-xs text-[#1b3022]"
+				class="flex items-start gap-3 rounded-xl border border-[#d0e9d4] bg-[#f2fbf3] p-3.5 sm:p-4 text-xs sm:text-sm text-[#1b3022]"
 			>
-				<Info class="mt-0.5 size-4 shrink-0 text-[#1b3022]" />
+				<Info class="mt-0.5 size-5 shrink-0 text-[#1b3022]" />
 				<div>
 					<p class="font-bold">
 						{selectedShape === 'circle'
@@ -529,12 +529,11 @@
 								? 'Zašto +12% za L-oblik?'
 								: 'Standardna rezerva +10%'}
 					</p>
-					<p class="mt-0.5 leading-relaxed text-[#2a4d33] text-[11px]">
+					<p class="mt-1 leading-relaxed text-[#2a4d33] text-xs">
 						{#if selectedShape === 'circle'}
 							Kružno i lučno rezanje dasaka stvara veći škart, pa se preporučuje 15% rezerve.
 						{:else if selectedShape === 'l-shape'}
-							Unutrašnji uglovi i preklopni spojevi zahtijevaju 12% rezerve radi preciznog
-							uklapanja.
+							Unutrašnji uglovi i preklopni spojevi zahtijevaju 12% rezerve radi preciznog uklapanja.
 						{:else}
 							Građevinski standard nalaže 10% rezerve za dilatacijske razmake, rezove uz zid i lom.
 						{/if}
@@ -545,36 +544,36 @@
 
 		<!-- Right: Calculation summary card -->
 		<div
-			class="flex flex-col justify-between rounded-2xl border border-[#c3c8c1] bg-[#fbf9f6] p-4 sm:p-6 shadow-sm"
+			class="flex flex-col justify-between rounded-2xl border border-[#c3c8c1] bg-[#fbf9f6] p-5 sm:p-6 lg:p-7 shadow-sm md:sticky md:top-0 h-fit"
 		>
 			<div>
-				<h4 class="text-xs font-bold uppercase tracking-wider text-[#5b5f60]">
+				<h4 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#5b5f60]">
 					Rezultati proračuna
 				</h4>
 
-				<div class="mt-4 grid grid-cols-2 gap-3 border-b border-[#e3e2e0] pb-4">
+				<div class="mt-4 grid grid-cols-2 gap-4 border-b border-[#e3e2e0] pb-4">
 					<div>
-						<p class="text-xs text-[#5b5f60]">Neto površina:</p>
-						<p class="text-lg font-extrabold text-[#1b1c1a]">{netArea} m²</p>
+						<p class="text-xs sm:text-sm text-[#5b5f60]">Neto površina:</p>
+						<p class="text-xl sm:text-2xl font-black text-[#1b1c1a]">{netArea} m²</p>
 					</div>
 					<div>
-						<p class="text-xs text-[#5b5f60]">+{reservePercent}% Rezerva:</p>
-						<p class="text-lg font-extrabold text-[#2a6639]">+{reserveArea} m²</p>
+						<p class="text-xs sm:text-sm text-[#5b5f60]">+{reservePercent}% Rezerva:</p>
+						<p class="text-xl sm:text-2xl font-black text-[#2a6639]">+{reserveArea} m²</p>
 					</div>
 				</div>
 
 				<div class="mt-4">
-					<p class="text-xs font-semibold text-[#5b5f60]">
+					<p class="text-xs sm:text-sm font-bold text-[#5b5f60]">
 						Ukupno potrebno naručiti (sa rezervom):
 					</p>
-					<p class="text-3xl font-black tracking-tight text-[#061b0e]">
-						{grossArea} <span class="text-xl font-semibold">m²</span>
+					<p class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#061b0e]">
+						{grossArea} <span class="text-xl sm:text-2xl font-bold">m²</span>
 					</p>
 				</div>
 
 				<!-- Category specific breakdowns -->
 				<div
-					class="mt-5 space-y-2 rounded-xl border border-[#e3e2e0] bg-white p-4 text-xs text-[#434843]"
+					class="mt-4 space-y-2 rounded-2xl border border-[#e3e2e0] bg-white p-4 text-xs sm:text-sm text-[#434843]"
 				>
 					{#if selectedCategory === 'laminat'}
 						<div class="flex justify-between py-1 border-b border-[#f5f3f0]">
@@ -585,11 +584,11 @@
 						</div>
 						<div class="flex justify-between py-1 border-b border-[#f5f3f0]">
 							<span>Podloga / spužvica:</span>
-							<span class="font-semibold text-[#061b0e]">{grossArea} m²</span>
+							<span class="font-bold text-[#061b0e]">{grossArea} m²</span>
 						</div>
 						<div class="flex justify-between py-1">
 							<span>Preporučena dužina lajsni:</span>
-							<span class="font-semibold text-[#061b0e]">cca {estimatedPerimeter} m dužnih</span>
+							<span class="font-bold text-[#061b0e]">cca {estimatedPerimeter} m dužnih</span>
 						</div>
 					{:else}
 						<div class="flex justify-between py-1 border-b border-[#f5f3f0]">
@@ -598,13 +597,13 @@
 						</div>
 						<div class="flex justify-between py-1 border-b border-[#f5f3f0]">
 							<span>Podkonstrukcijske grede:</span>
-							<span class="font-semibold text-[#061b0e]"
+							<span class="font-bold text-[#061b0e]"
 								>cca {deckingSubconstructionMeters} m dužnih</span
 							>
 						</div>
 						<div class="flex justify-between py-1">
 							<span>Montažne kopče i vijci:</span>
-							<span class="font-semibold text-[#061b0e]">cca {deckingClipsCount} kom</span>
+							<span class="font-bold text-[#061b0e]">cca {deckingClipsCount} kom</span>
 						</div>
 					{/if}
 				</div>
@@ -612,20 +611,18 @@
 				{#if estimatedTotal !== null && selectedProduct}
 					<div class="mt-4 flex items-center justify-between border-t border-[#e3e2e0] pt-4">
 						<div>
-							<p class="text-xs text-[#5b5f60]">
-								Okvirna cijena za {Math.ceil(grossArea)}
-								{selectedProduct.unit}:
+							<p class="text-xs sm:text-sm font-semibold text-[#5b5f60]">
+								Okvirna cijena ({Math.ceil(grossArea)} {selectedProduct.unit}):
 							</p>
-							<p class="text-2xl font-black text-[#061b0e]">{formatPrice(estimatedTotal)} KM</p>
+							<p class="text-2xl sm:text-3xl font-black text-[#061b0e]">{formatPrice(estimatedTotal)} KM</p>
 						</div>
 					</div>
 				{:else}
 					<div
-						class="mt-4 rounded-xl border border-dashed border-[#c3c8c1] bg-white p-3.5 text-center text-xs text-[#5b5f60]"
+						class="mt-4 rounded-xl border border-dashed border-[#c3c8c1] bg-white p-3 text-center text-xs sm:text-sm text-[#5b5f60]"
 					>
 						<p class="font-medium">
-							Odaberite artikal iznad ukoliko želite izračunati okvirnu cijenu i dodati materijal u
-							korpu.
+							Odaberite artikal iznad za izračun okvirne cijene i dodavanje u korpu.
 						</p>
 					</div>
 				{/if}
@@ -635,9 +632,9 @@
 			{#if onAddToCart && selectedProduct}
 				<button
 					onclick={handleAdd}
-					class="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#1b3022] text-sm font-bold text-white shadow-[0_10px_24px_rgba(27,48,34,0.16)] transition hover:bg-[#061b0e] active:scale-98 cursor-pointer"
+					class="mt-5 flex h-13 w-full items-center justify-center gap-2.5 rounded-full bg-[#1b3022] text-sm sm:text-base font-bold text-white shadow-[0_10px_24px_rgba(27,48,34,0.2)] transition hover:bg-[#061b0e] active:scale-98 cursor-pointer"
 				>
-					<Plus class="size-4.5" />
+					<Plus class="size-5" />
 					<span>Dodaj {Math.ceil(grossArea)} {selectedProduct.unit} u korpu</span>
 				</button>
 			{/if}

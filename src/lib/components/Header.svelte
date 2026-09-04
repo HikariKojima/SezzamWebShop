@@ -70,14 +70,10 @@
 		<div class="flex items-center justify-between gap-4 shrink-0">
 			<a
 				href={resolve('/')}
-				class="flex items-center gap-2.5 transition opacity-95 hover:opacity-100"
-				aria-label="Sezzam - Premium Decking Sistemi"
+				class="text-2xl sm:text-[26px] font-bold tracking-tight text-[#061b0e] transition hover:opacity-85"
+				aria-label="Sezzam početna"
 			>
-				<img
-					src="/images/logo/logo.png"
-					alt="Sezzam - Premium Decking Sistemi"
-					class="h-8 sm:h-10 w-auto object-contain"
-				/>
+				Sezzam
 			</a>
 			<div class="flex items-center gap-2 lg:hidden">
 				<a
@@ -158,7 +154,13 @@
 											<div class="min-w-0 flex-1">
 												<p class="truncate text-sm font-semibold text-[#061b0e]">{product.name}</p>
 												<p class="mt-0.5 truncate text-xs text-[#5b5f60]">
-													{formatPrice(product.price)} KM / {product.unit}
+													{#if product.originalPrice && product.originalPrice > product.price}
+														<span class="line-through text-[#8a8f8a] mr-1">{formatPrice(product.originalPrice)} KM</span>
+														<span class="font-bold text-[#ba1a1a]">{formatPrice(product.price)} KM</span>
+													{:else}
+														<span>{formatPrice(product.price)} KM</span>
+													{/if}
+													<span> / {product.unit}</span>
 												</p>
 											</div>
 											<span

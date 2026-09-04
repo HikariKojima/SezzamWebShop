@@ -22,7 +22,8 @@
 	const defaultFilters: ProductFilters = {
 		category: null,
 		price: null,
-		availability: null
+		availability: null,
+		onlySale: false
 	};
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -180,6 +181,12 @@
 		}
 		if (selectedFilters.price && product.price < selectedFilters.price.min) return false;
 		if (selectedFilters.price && product.price > selectedFilters.price.max) {
+			return false;
+		}
+		if (
+			selectedFilters.onlySale &&
+			(!product.originalPrice || product.originalPrice <= product.price)
+		) {
 			return false;
 		}
 
@@ -385,25 +392,24 @@
 		{/if}
 	</section>
 
-	<!-- Dedicated Calculator Dialog for Product Cards -->
-	<!-- Dedicated Calculator Dialog for Product Cards (Bottom sheet on mobile, modal on desktop) -->
+	<!-- Dedicated Calculator Dialog for Product Cards (Bottom sheet on mobile, spacious modal on desktop) -->
 	<Dialog.Root bind:open={calculatorDialogOpen}>
 		<Dialog.Content
-			class="fixed bottom-0 left-0 right-0 top-auto z-50 flex max-h-[88vh] w-full max-w-full translate-x-0 translate-y-0 flex-col overflow-hidden rounded-b-none rounded-t-3xl border-[#c3c8c1] bg-white p-0 shadow-2xl transition-all sm:top-1/2 sm:left-1/2 sm:max-h-[90vh] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
+			class="fixed bottom-0 left-0 right-0 top-auto z-50 flex max-h-[92vh] w-full max-w-full translate-x-0 translate-y-0 flex-col overflow-hidden rounded-b-none rounded-t-3xl border-[#c3c8c1] bg-white p-0 shadow-2xl transition-all sm:top-1/2 sm:left-1/2 sm:right-auto sm:bottom-auto sm:w-[92vw] sm:max-w-5xl lg:max-w-6xl xl:max-w-[1250px] sm:max-h-[92vh] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl"
 		>
 			<!-- Mobile drag / sheet indicator -->
 			<div class="mx-auto mt-2.5 h-1.5 w-12 shrink-0 rounded-full bg-[#d6d1c8] sm:hidden"></div>
 
-			<Dialog.Header class="px-5 pt-3 pb-2 sm:px-6 sm:pt-6 sm:pb-0 shrink-0">
-				<Dialog.Title class="text-lg font-bold text-[#061b0e] sm:text-xl">
+			<Dialog.Header class="px-6 pt-4 pb-3 sm:px-10 sm:py-5 shrink-0 border-b border-[#f2efe9]">
+				<Dialog.Title class="text-xl font-bold text-[#061b0e] sm:text-2xl lg:text-3xl">
 					Kalkulator utroška površine
 				</Dialog.Title>
-				<Dialog.Description class="text-xs text-[#5b5f60]">
+				<Dialog.Description class="text-xs sm:text-sm text-[#5b5f60]">
 					Proračun potrebne količine za {calculatorSelectedProduct?.name ?? 'odabrani materijal'}
 				</Dialog.Description>
 			</Dialog.Header>
 
-			<div class="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
+			<div class="custom-scrollbar flex-1 overflow-y-auto overscroll-contain px-5 py-4 pb-12 sm:px-8 sm:py-6 sm:pb-12 lg:px-10 lg:py-8 lg:pb-12">
 				<MaterialCalculator
 					{products}
 					initialProduct={calculatorSelectedProduct}

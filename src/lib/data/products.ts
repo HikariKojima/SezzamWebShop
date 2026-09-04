@@ -7,6 +7,7 @@ export const products: Product[] = [
 		description:
 			'Visokokvalitetne kompozitne daske za terase i bazene sa protukliznom strukturom i UV zaštitom.',
 		price: 48.0,
+		originalPrice: 56.0,
 		unit: 'm2',
 		unitType: 'm2',
 		tag: 'Novo',
@@ -37,6 +38,7 @@ export const products: Product[] = [
 		description:
 			'Akustični LVT vinil sa integrisanom zvučnom podlogom i patentiranim klik sistemom za brzu ugradnju.',
 		price: 45.0,
+		originalPrice: 52.0,
 		unit: 'm2',
 		unitType: 'm2',
 		tag: 'Najprodavanije',

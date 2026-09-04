@@ -27,7 +27,8 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	return {
 		product: {
 			...product,
-			price: product.priceCents / 100
+			price: product.priceCents / 100,
+			originalPrice: product.originalPriceCents ? product.originalPriceCents / 100 : null
 		},
 		categories: allCategories
 	};

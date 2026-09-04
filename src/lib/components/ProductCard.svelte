@@ -54,6 +54,11 @@
 	}
 
 	let avail = $derived(getAvailabilityInfo(product));
+	let discountPercent = $derived(
+		product.originalPrice && product.originalPrice > product.price
+			? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+			: null
+	);
 	let hasCalculator = $derived(
 		product.unitType === 'm2' ||
 			product.category === 'wpc' ||
@@ -73,6 +78,16 @@
 >
 	<div>
 		<div class="relative rounded-lg bg-[#f5f3f0] p-4 overflow-hidden">
+			{#if discountPercent}
+				<div class="absolute left-3 top-3 z-10">
+					<span
+						class="inline-flex items-center gap-1 rounded-full bg-[#ba1a1a] px-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-md"
+					>
+						<span>Akcija -{discountPercent}%</span>
+					</span>
+				</div>
+			{/if}
+
 			{#if product.imageUrl}
 				<div class="h-44 w-full overflow-hidden rounded-md bg-white">
 					<img
@@ -111,7 +126,7 @@
 				<button
 					type="button"
 					onclick={() => onOpenCalculator?.(product)}
-					class="inline-flex items-center gap-1.5 rounded-md border border-[#c3c8c1] bg-[#fbf9f6] px-2.5 py-1 text-[11px] font-semibold text-[#1b3022] transition hover:border-[#1b3022] hover:bg-white"
+					class="inline-flex items-center gap-1.5 rounded-md border border-[#c3c8c1] bg-[#fbf9f6] px-2.5 py-1 text-[11px] font-semibold text-[#1b3022] transition hover:border-[#1b3022] hover:bg-white cursor-pointer"
 				>
 					<Calculator class="size-3.5" />
 					<span>Kalkulator utroška</span>
@@ -121,7 +136,16 @@
 
 		<div class="flex items-end justify-between gap-4">
 			<div>
-				<p class="text-xl font-bold text-[#061b0e]">{formatPrice(product.price)} KM</p>
+				{#if product.originalPrice && product.originalPrice > product.price}
+					<p class="text-xs font-semibold text-[#737973] line-through">
+						{formatPrice(product.originalPrice)} KM
+					</p>
+					<p class="text-2xl font-black text-[#ba1a1a] leading-tight">
+						{formatPrice(product.price)} <span class="text-lg font-bold">KM</span>
+					</p>
+				{:else}
+					<p class="text-xl font-bold text-[#061b0e]">{formatPrice(product.price)} KM</p>
+				{/if}
 				<p class="text-xs text-[#5b5f60]">/ {product.unit}</p>
 			</div>
 

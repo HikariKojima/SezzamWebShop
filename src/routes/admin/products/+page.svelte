@@ -140,7 +140,19 @@
 					</div>
 
 					<div>
-						<p class="text-sm font-bold text-[#061b0e]">{formatPrice(product.price)} KM</p>
+						{#if product.originalPrice && product.originalPrice > product.price}
+							<p class="text-[11px] font-semibold text-[#8a8f8a] line-through">
+								{formatPrice(product.originalPrice)} KM
+							</p>
+							<div class="flex items-center gap-1.5">
+								<p class="text-sm font-black text-[#ba1a1a]">{formatPrice(product.price)} KM</p>
+								<span class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.5 text-[10px] font-extrabold text-[#ba1a1a]">
+									-{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+								</span>
+							</div>
+						{:else}
+							<p class="text-sm font-bold text-[#061b0e]">{formatPrice(product.price)} KM</p>
+						{/if}
 						<p class="text-xs text-[#5b5f60]">po {product.unit}</p>
 					</div>
 
@@ -230,10 +242,22 @@
 								</span>
 							</div>
 
-							<div class="mt-1.5 flex items-baseline gap-1.5">
-								<span class="text-base font-extrabold text-[#061b0e]">
-									{formatPrice(product.price)} KM
-								</span>
+							<div class="mt-1.5 flex flex-wrap items-baseline gap-1.5">
+								{#if product.originalPrice && product.originalPrice > product.price}
+									<span class="text-xs font-semibold text-[#8a8f8a] line-through">
+										{formatPrice(product.originalPrice)} KM
+									</span>
+									<span class="text-base font-black text-[#ba1a1a]">
+										{formatPrice(product.price)} KM
+									</span>
+									<span class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.2 text-[10px] font-extrabold text-[#ba1a1a]">
+										-{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+									</span>
+								{:else}
+									<span class="text-base font-extrabold text-[#061b0e]">
+										{formatPrice(product.price)} KM
+									</span>
+								{/if}
 								<span class="text-xs text-[#5b5f60]">/ {product.unit}</span>
 							</div>
 
