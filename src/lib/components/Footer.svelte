@@ -6,7 +6,7 @@
 		'https://maps.google.com/maps?vet=10CAAQoqAOahcKEwjo1LDRnsiWAxUAAAAAHQAAAAAQCA..i&pvq=Cg0vZy8xMXlqaGpwMjB6IgwKBnNlenphbRACGAM&lqi=CgpzZXp6YW0gYmloSJ6QqvjBvYCACFoUEAAYACIKc2V6emFtIGJpaDICaHKSAQl3YXJlaG91c2U&fvr=1&cs=1&um=1&ie=UTF-8&fb=1&gl=ba&sa=X&ftid=0x4758b5007a0f380d:0x6bf45d9d0e160531';
 	const phoneNumber = '+387 61 069 798';
 	const phoneHref = 'tel:+38761069798';
-	const emailAddress = 'info@sezzam.ba';
+	const emailAddress = 'sezzam@sezzam.ba';
 </script>
 
 <footer class="border-t border-[#c3c8c1] bg-[#121b14] text-white">
@@ -22,10 +22,10 @@
 					Sezzam
 				</a>
 				<p class="mt-3 text-xs font-semibold uppercase tracking-wider text-[#8da391]">
-					Premium Decking Sistemi & Podne Obloge
+					WPC Decking, SPC/LVT & Zidne Obloge
 				</p>
 				<p class="mt-4 text-sm leading-relaxed text-[#c0cac2]">
-					Vrhunski WPC decking za terase, balkone i bazene, te kvalitetne SPC i LVT podne obloge.
+					Vrhunski WPC decking za terase, balkone i bazene, kvalitetne SPC i LVT podne obloge, te moderne zidne obloge.
 					Dugotrajna rješenja sa brzom isporukom u BiH.
 				</p>
 			</div>

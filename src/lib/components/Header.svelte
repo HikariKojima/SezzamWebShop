@@ -59,7 +59,7 @@
 </script>
 
 <div class="bg-[#1b3022] px-4 py-2 text-center text-xs font-medium text-white sm:py-2.5 sm:text-sm">
-	Premium WPC decking sistemi i podne obloge sa brzom isporukom u BiH
+	WPC decking sistemi, SPC/LVT podne i zidne obloge sa brzom isporukom u BiH
 </div>
 
 <header class="border-b border-[#c3c8c1] bg-[#fbf9f6] sticky top-0 z-40 backdrop-blur-md">
@@ -111,7 +111,7 @@
 				<Search class="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#5b5f60]" />
 				<input
 					class="h-10.5 w-full rounded-full border border-[#c3c8c1] bg-[#f5f3f0] pl-11 pr-10 text-sm text-[#1b1c1a] placeholder:text-[#5b5f60] transition focus:border-[#1b3022] focus:bg-white focus:ring-0"
-					placeholder="Pretraži WPC decking, SPC/LVT podove..."
+					placeholder="Pretraži WPC decking, SPC/LVT, zidne obloge..."
 					value={searchQuery}
 					autocomplete="off"
 					oninput={(event) => onSearchChange(event.currentTarget.value)}

@@ -186,7 +186,7 @@
 					<div>
 						<h3 class="text-xl font-bold text-[#061b0e]">Kalkulator potrošnje materijala</h3>
 						<p class="text-xs text-[#5b5f60]">
-							Automatski proračun sa građevinskom rezervom prilagođenom obliku prostora
+							Automatski proračun sa uračunatom rezervom prilagođenom obliku prostora
 						</p>
 					</div>
 				</div>
@@ -535,7 +535,7 @@
 						{:else if selectedShape === 'l-shape'}
 							Unutrašnji uglovi i preklopni spojevi zahtijevaju 12% rezerve radi preciznog uklapanja.
 						{:else}
-							Građevinski standard nalaže 10% rezerve za dilatacijske razmake, rezove uz zid i lom.
+							Preporučeni standard nalaže 10% rezerve za dilatacijske razmake, rezove uz zid i lom.
 						{/if}
 					</p>
 				</div>

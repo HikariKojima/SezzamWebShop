@@ -252,15 +252,15 @@
 			{
 				'@type': 'HomeAndConstructionBusiness',
 				'@id': `${siteUrl}/#business`,
-				name: 'Sezzam - Premium Decking Sistemi',
-				alternateName: 'Sezzam WPC Decking i Podne Obloge',
+				name: 'Sezzam - WPC Decking, SPC/LVT Podne i Zidne Obloge',
+				alternateName: 'Sezzam Webshop WPC Decking & Podne Obloge',
 				description:
-					'Specijalizovani za vrhunski WPC kompozitni decking za terase, balkone i bazene, te moderne SPC i LVT podne obloge u Bosni i Hercegovini.',
+					'Specijalizovani za vrhunski WPC kompozitni decking za terase, balkone i bazene, SPC i LVT podne obloge, te moderne zidne obloge u Bosni i Hercegovini.',
 				url: siteUrl,
-				logo: `${siteUrl}/images/logo/logo.png`,
-				image: `${siteUrl}/images/logo/logo.png`,
+				logo: `${siteUrl}/images/logo/logo-square.png`,
+				image: `${siteUrl}/images/logo/logo-square.png`,
 				telephone: '+38761069798',
-				email: 'info@sezzam.ba',
+				email: 'sezzam@sezzam.ba',
 				priceRange: '$$',
 				address: {
 					'@type': 'PostalAddress',
@@ -274,7 +274,7 @@
 				'@type': 'WebSite',
 				'@id': `${siteUrl}/#website`,
 				url: siteUrl,
-				name: 'Sezzam - Premium Decking Sistemi',
+				name: 'Sezzam - WPC Decking, SPC/LVT Podne i Zidne Obloge',
 				inLanguage: 'bs-BA',
 				publisher: {
 					'@id': `${siteUrl}/#business`
@@ -282,7 +282,7 @@
 			},
 			{
 				'@type': 'ItemList',
-				name: 'Sezzam WPC Decking i Podne Obloge',
+				name: 'Sezzam WPC Decking, SPC/LVT i Zidne Obloge',
 				itemListElement: products.slice(0, 30).map((prod, index) => ({
 					'@type': 'ListItem',
 					position: index + 1,
@@ -314,11 +314,11 @@
 </script>
 
 <SEO
-	title="Sezzam | Premium WPC Decking Sistemi i Podne Obloge BiH"
-	description="Specijalizovani za vrhunski WPC decking za terase, balkone i bazene, te SPC i LVT podne obloge u BiH. Izračunajte kvadrate i naručite online uz brzu dostavu."
-	keywords="wpc decking, decking sistemi, wpc decking bih, wpc daske, podne obloge, decking za terase, spc podovi, lvt podovi, lvt, bazeni decking, sezzam, sezzam ba, sarajevo"
+	title="Sezzam | Webshop WPC Decking, SPC/LVT Podne i Zidne Obloge BiH"
+	description="Specijalizovani webshop za vrhunski WPC decking za terase i bazene, SPC i LVT podne obloge, te moderne zidne obloge u BiH. Izračunajte utrošak materijala i naručite online."
+	keywords="wpc decking, decking sistemi, wpc decking bih, wpc daske, spc podovi, lvt podovi, zidne obloge, podne obloge, decking za terase, sezzam, sezzam ba, sarajevo, bosna i hercegovina"
 	canonical="/"
-	image="/images/logo/logo.png"
+	image="/images/logo/logo-square.png"
 	jsonLd={structuredData}
 />
 

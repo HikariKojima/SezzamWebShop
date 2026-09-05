@@ -2,11 +2,11 @@
 	import { env } from '$env/dynamic/public';
 
 	let {
-		title = 'Sezzam | Premium WPC Decking Sistemi i Podne Obloge BiH',
-		description = 'Sezzam - Specijalizovani za WPC kompozitni decking za terase, balkone i bazene, te moderne SPC i LVT podne obloge u BiH. Brza narudžba i dostava.',
-		keywords = 'wpc decking, decking sistemi, wpc decking bih, wpc decking sarajevo, podne obloge, spc podovi, lvt podovi, lvt, wpc daske za terase, sezzam, sezzam ba, terase i bazeni bih',
+		title = 'Sezzam | Webshop WPC Decking, SPC/LVT Podne i Zidne Obloge BiH',
+		description = 'Sezzam - Specijalizovani webshop za vrhunski WPC decking za terase i bazene, SPC i LVT podne obloge, te moderne zidne obloge u BiH. Izračunajte utrošak materijala i naručite online.',
+		keywords = 'wpc decking, decking sistemi, spc podovi, lvt podovi, zidne obloge, podne obloge, wpc decking bih, wpc daske za terase, sezzam, sezzam ba, sarajevo, bosna i hercegovina',
 		canonical = '',
-		image = '/images/logo/logo.png',
+		image = '/images/logo/logo-square.png',
 		type = 'website',
 		jsonLd = null
 	}: {
@@ -32,6 +32,9 @@
 	<meta name="description" content={description} />
 	<meta name="keywords" content={keywords} />
 	<link rel="canonical" href={fullCanonical} />
+	<link rel="icon" href="/favicon.ico" sizes="48x48" />
+	<link rel="icon" type="image/png" sizes="192x192" href="/images/logo/logo-square.png" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
 	<!-- Geografski tagovi za lokalno rangiranje u BiH -->
 	<meta name="geo.region" content="BA" />

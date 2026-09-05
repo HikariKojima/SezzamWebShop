@@ -8,14 +8,14 @@
 	>
 		<div class="flex flex-col justify-center px-6 py-10 sm:px-12 lg:py-14">
 			<p class="mb-5 text-xs font-semibold uppercase tracking-wider text-[#4d6453]">
-				WPC Decking & Podne Obloge
+				WPC Decking, SPC/LVT, Podne i Zidne Obloge
 			</p>
 			<h1 class="max-w-xl text-4xl font-semibold leading-tight text-[#061b0e] sm:text-5xl">
-				Vrhunski decking i podne obloge za vaš prostor.
+				Vrhunski decking, podne i zidne obloge za vaš prostor.
 			</h1>
 			<p class="mt-6 max-w-lg text-base leading-7 text-[#434843] sm:text-lg">
-				Specijalizovani za WPC kompozitni decking za terase, balkone i bazene, te moderne SPC i LVT
-				podne obloge. Dugotrajnost, UV i vlagootpornost bez potrebe za lakiranjem.
+				Specijalizovani za WPC kompozitni decking za terase, balkone i bazene, moderne SPC i LVT
+				podne obloge, te dekorativne zidne obloge. Dugotrajnost, UV i vlagootpornost bez potrebe za lakiranjem.
 			</p>
 			<div class="mt-8 flex flex-col gap-3 sm:flex-row">
 				<a

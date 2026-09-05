@@ -148,7 +148,7 @@
 				</div>
 				<p class="mt-5 text-base font-semibold text-[#061b0e]">Korpa je prazna</p>
 				<p class="mt-2 max-w-xs text-xs leading-5 text-[#434843]">
-					Dodajte laminate, decking, cement ili druge materijale iz kataloga.
+					Dodajte WPC decking, SPC/LVT ili zidne obloge iz ponude.
 				</p>
 			</div>
 		{:else}
