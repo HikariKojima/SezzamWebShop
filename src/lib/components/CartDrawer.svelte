@@ -66,7 +66,7 @@
 <Sheet.Root bind:open>
 	<Sheet.Content
 		side="right"
-		class="w-[94vw] border-[#c3c8c1] bg-[#fbf9f6] text-[#1b1c1a] sm:max-w-[460px] flex flex-col p-0"
+		class="w-[94vw] border-[#c3c8c1] bg-[#fbf9f6] text-[#1b1c1a] sm:max-w-115 flex flex-col p-0"
 	>
 		<Sheet.Header class="border-b border-[#e3e2e0] px-6 py-5 bg-white">
 			<Sheet.Title class="text-xl font-bold text-[#061b0e]">Korpa i narudžba</Sheet.Title>
