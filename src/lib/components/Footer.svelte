@@ -116,7 +116,24 @@
 			class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-[#8da391] sm:flex-row"
 		>
 			<p>© {new Date().getFullYear()} Sezzam. Sva prava zadržana.</p>
-			<p>Građevinski materijali BiH</p>
+			<div class="flex flex-wrap items-center justify-center gap-2 text-center">
+				<span>Izrada web stranice:</span>
+				<a
+					href="mailto:tarik.mujezinovicbiz@gmail.com"
+					rel="external"
+					class="font-medium text-white underline decoration-[#8da391]/60 underline-offset-4 transition hover:text-[#8da391]"
+				>
+					TarikM
+				</a>
+				<span class="text-white/30">•</span>
+				<a
+					href="mailto:tarik.mujezinovicbiz@gmail.com"
+					rel="external"
+					class="text-[#c0cac2] transition hover:text-white"
+				>
+					tarik.mujezinovicbiz@gmail.com
+				</a>
+			</div>
 		</div>
 	</div>
 </footer>
