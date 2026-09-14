@@ -94,25 +94,38 @@ export async function parseProductForm(formData: FormData) {
 		'size' in imageFile &&
 		(imageFile as File).size > 0
 	) {
+		const file = imageFile as File;
+
+		const ext = (file.name.split('.').pop() || 'webp').toLowerCase();
+		const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'avif'].includes(ext) ? ext : 'webp';
+		const safeBaseName = file.name
+			.replace(/\.[^/.]+$/, '')
+			.toLowerCase()
+			.replace(/[^a-z0-9]/g, '-')
+			.replace(/-+/g, '-')
+			.slice(0, 40);
+
+		const fileName = `${safeBaseName || 'proizvod'}-${Date.now()}.${safeExt}`;
+
 		try {
-			const file = imageFile as File;
-
-			const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-			const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'avif'].includes(ext) ? ext : 'jpg';
-			const safeBaseName = file.name
-				.replace(/\.[^/.]+$/, '')
-				.toLowerCase()
-				.replace(/[^a-z0-9]/g, '-')
-				.replace(/-+/g, '-')
-				.slice(0, 40);
-
-			const fileName = `${safeBaseName || 'proizvod'}-${Date.now()}.${safeExt}`;
-
-			// Upload na Vercel Blob
+			// 1. Primarno: pokušaj upload na Vercel Blob (najefikasniji CDN)
 			const blob = await put(`products/${fileName}`, file, { access: 'public' });
-			imageUrl = blob.url; // Vraća nam trajni public URL
-		} catch (uploadError) {
-			console.error('Greška pri uploadu slike na Vercel Blob:', uploadError);
+			if (blob && blob.url) {
+				imageUrl = blob.url;
+			}
+		} catch (blobError) {
+			console.warn(
+				'Vercel Blob upload nije uspio (vjerovatno fali BLOB_READ_WRITE_TOKEN na Vercelu). Koristim Base64 fallback:',
+				blobError
+			);
+			try {
+				// 2. Pouzdani fallback: ako Vercel Blob nije konfigurisan, spremi optimizovanu WebP sliku direktno
+				const buffer = Buffer.from(await file.arrayBuffer());
+				const mimeType = file.type || 'image/webp';
+				imageUrl = `data:${mimeType};base64,${buffer.toString('base64')}`;
+			} catch (fallbackError) {
+				console.error('Greška pri kreiranju fallback slike:', fallbackError);
+			}
 		}
 	}
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { Banknote, Building2, CheckCircle2 } from '@lucide/svelte';
+	import { Banknote, Building2, CheckCircle2, Package } from '@lucide/svelte';
 
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import type { CartItem } from '$lib/types/cart';
@@ -158,28 +158,43 @@
 						{#each cartProducts as item (item.productId)}
 							<div class="rounded-xl border border-[#c3c8c1] bg-white p-4 shadow-sm">
 								<div class="flex items-start justify-between gap-3">
-									<div>
-										<h4 class="font-semibold leading-snug text-[#1b1c1a] text-sm">
-											{item.product.name}
-										</h4>
-										<div class="mt-0.5 flex items-center gap-1.5 text-xs">
-											{#if item.product.originalPrice && item.product.originalPrice > item.product.price}
-												<span class="text-[#8a8f8a] line-through font-medium">
-													{formatPrice(item.product.originalPrice)} KM
-												</span>
-												<span class="font-bold text-[#ba1a1a]">
-													{formatPrice(item.product.price)} KM
-												</span>
-											{:else}
-												<span class="text-[#5b5f60]">
-													{formatPrice(item.product.price)} KM
-												</span>
-											{/if}
-											<span class="text-[#5b5f60]">/ {item.product.unit}</span>
+									<div class="flex items-center gap-3 min-w-0">
+										{#if item.product.imageUrl}
+											<img
+												src={item.product.imageUrl}
+												alt={item.product.name}
+												class="size-12 rounded-lg border border-[#e3e2e0] object-cover shrink-0"
+											/>
+										{:else}
+											<div
+												class="grid size-12 place-items-center rounded-lg border border-[#e3e2e0] bg-[#f5f3f0] text-[#737973] shrink-0"
+											>
+												<Package class="size-5" />
+											</div>
+										{/if}
+										<div class="min-w-0">
+											<h4 class="font-semibold leading-snug text-[#1b1c1a] text-sm truncate">
+												{item.product.name}
+											</h4>
+											<div class="mt-0.5 flex items-center gap-1.5 text-xs">
+												{#if item.product.originalPrice && item.product.originalPrice > item.product.price}
+													<span class="text-[#8a8f8a] line-through font-medium">
+														{formatPrice(item.product.originalPrice)} KM
+													</span>
+													<span class="font-bold text-[#ba1a1a]">
+														{formatPrice(item.product.price)} KM
+													</span>
+												{:else}
+													<span class="text-[#5b5f60]">
+														{formatPrice(item.product.price)} KM
+													</span>
+												{/if}
+												<span class="text-[#5b5f60]">/ {item.product.unit}</span>
+											</div>
 										</div>
 									</div>
 									<button
-										class="rounded-full px-2 py-1 text-xs font-semibold text-[#5b5f60] transition hover:bg-[#efeeeb] hover:text-[#ba1a1a]"
+										class="rounded-full px-2 py-1 text-xs font-semibold text-[#5b5f60] transition hover:bg-[#efeeeb] hover:text-[#ba1a1a] shrink-0"
 										aria-label={`Ukloni ${item.product.name} iz korpe`}
 										onclick={() => onRemove(item.productId)}
 									>
