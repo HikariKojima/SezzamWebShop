@@ -112,11 +112,17 @@ export async function parseProductForm(formData: FormData) {
 			process.env.PUBLICBLOB_READ_WRITE_TOKEN ||
 			process.env.BLOB_READ_WRITE_TOKEN;
 
+		const storeId =
+			process.env.PublicBlob_STORE_ID ||
+			process.env.PUBLICBLOB_STORE_ID ||
+			process.env.BLOB_STORE_ID;
+
 		try {
 			// 1. Primarno: pokušaj upload na Vercel Blob (najefikasniji CDN)
 			const blob = await put(`products/${fileName}`, file, {
 				access: 'public',
-				...(blobToken ? { token: blobToken } : {})
+				...(blobToken ? { token: blobToken } : {}),
+				...(storeId ? { storeId } : {})
 			});
 			if (blob && blob.url) {
 				imageUrl = blob.url;
