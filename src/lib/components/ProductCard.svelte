@@ -72,12 +72,13 @@
 </script>
 
 <article
-	class="group flex flex-col justify-between overflow-hidden rounded-xl border border-[#c3c8c1] bg-white p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(27,28,26,0.08)] hover:border-[#1b3022]/40"
+	class="group flex flex-col justify-between overflow-hidden rounded-2xl border border-[#c3c8c1] bg-white transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(27,28,26,0.08)] hover:border-[#1b3022]/40"
 	in:fly={{ y: 10, duration: 180 }}
 	out:fade={{ duration: 120 }}
 >
 	<div>
-		<div class="relative rounded-lg bg-[#f5f3f0] p-4 overflow-hidden">
+		<!-- Full-width Image Area with Overlapped Badges -->
+		<div class="relative aspect-[4/3] w-full overflow-hidden bg-[#f5f3f0]">
 			{#if discountPercent}
 				<div class="absolute left-3 top-3 z-10">
 					<span
@@ -88,21 +89,33 @@
 				</div>
 			{/if}
 
-			{#if product.imageUrl}
-				<div class="h-44 w-full overflow-hidden rounded-md bg-white">
-					<img
-						src={product.imageUrl}
-						alt={product.name}
-						class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-						loading="lazy"
-					/>
+			{#if product.tag}
+				<div class="absolute right-3 top-3 z-10">
+					<span
+						class="inline-flex items-center rounded-full bg-[#1b3022]/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-white shadow-xs"
+					>
+						{product.tag}
+					</span>
 				</div>
-			{:else}
-				<div class={`material-art ${product.art}`} aria-hidden="true"></div>
 			{/if}
-			<div class="mt-3 flex items-center justify-end gap-2">
+
+			{#if product.imageUrl}
+				<img
+					src={product.imageUrl}
+					alt={product.name}
+					class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+					loading="lazy"
+				/>
+			{:else}
+				<div class="flex h-full w-full items-center justify-center p-3">
+					<div class={`material-art w-full ${product.art}`} aria-hidden="true"></div>
+				</div>
+			{/if}
+
+			<!-- Overlapped availability badge -->
+			<div class="absolute bottom-3 right-3 z-10">
 				<span
-					class={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${avail.textClass}`}
+					class={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold shadow-xs backdrop-blur-md ${avail.textClass}`}
 				>
 					<span class={`size-1.5 rounded-full ${avail.dotClass}`}></span>
 					<span>{avail.label}</span>
@@ -110,7 +123,8 @@
 			</div>
 		</div>
 
-		<div class="pt-4">
+		<!-- Card Content -->
+		<div class="p-4 sm:p-5 pb-2">
 			<div class="flex items-start justify-between gap-2">
 				<h2 class="text-lg font-semibold leading-snug text-[#1b1c1a] group-hover:text-[#061b0e]">
 					{product.name}
@@ -120,7 +134,7 @@
 		</div>
 	</div>
 
-	<div class="mt-4 border-t border-[#e3e2e0] pt-4">
+	<div class="border-t border-[#e3e2e0] p-4 sm:p-5 pt-4">
 		{#if hasCalculator && onOpenCalculator}
 			<div class="mb-3">
 				<button
@@ -188,7 +202,8 @@
 <style>
 	.material-art {
 		position: relative;
-		height: 180px;
+		height: 100%;
+		min-height: 180px;
 		border-radius: 6px;
 		background: #e3e2e0;
 		overflow: hidden;
