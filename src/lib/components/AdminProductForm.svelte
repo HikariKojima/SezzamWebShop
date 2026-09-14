@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { Upload, Image as ImageIcon, X, Check } from '@lucide/svelte';
+	import { Upload, Image as ImageIcon, X, Check, Loader2, AlertCircle } from '@lucide/svelte';
+	import { compressImage } from '$lib/imageCompressor';
 	import {
 		availabilityOptions,
 		productArtOptions,
@@ -39,6 +40,8 @@
 	let previewUrl = $state<string | null>(null);
 	let selectedFileName = $state<string>('');
 	let manualUrl = $state<string>('');
+	let isCompressing = $state(false);
+	let fileError = $state<string | null>(null);
 
 	let priceInput = $state('');
 	let originalPriceInput = $state('');
@@ -72,18 +75,65 @@
 		}
 	});
 
-	function handleFileChange(event: Event) {
+	async function handleFileChange(event: Event) {
 		const target = event.target as HTMLInputElement;
-		if (target.files && target.files.length > 0) {
-			const file = target.files[0];
-			selectedFileName = file.name;
-			previewUrl = URL.createObjectURL(file);
+		if (!target.files || target.files.length === 0) return;
+
+		const originalFile = target.files[0];
+		fileError = null;
+
+		// Client-side quick checks
+		if (!originalFile.type.startsWith('image/')) {
+			fileError = 'Odabrana datoteka mora biti slika (JPG, PNG, WEBP).';
+			target.value = '';
+			return;
+		}
+
+		if (originalFile.size > 35 * 1024 * 1024) {
+			fileError = 'Slika je prevelika (maksimalno 35 MB). Molimo odaberite manju sliku.';
+			target.value = '';
+			return;
+		}
+
+		isCompressing = true;
+		try {
+			// Optimizes smartphone photos down from 10MB+ to ~200-500KB WebP
+			const compressed = await compressImage(originalFile, {
+				maxDimension: 1600,
+				quality: 0.82
+			});
+
+			// Reassign the compressed file to the file input
+			try {
+				const dt = new DataTransfer();
+				dt.items.add(compressed);
+				target.files = dt.files;
+			} catch {
+				// Fallback if browser limits DataTransfer assignment
+			}
+
+			selectedFileName = compressed.name;
+			if (previewUrl && previewUrl.startsWith('blob:')) {
+				URL.revokeObjectURL(previewUrl);
+			}
+			previewUrl = URL.createObjectURL(compressed);
 			manualUrl = '';
+		} catch (err: unknown) {
+			console.error('Greška pri optimizaciji slike:', err);
+			fileError = err instanceof Error ? err.message : 'Došlo je do greške pri obradi slike.';
+			selectedFileName = originalFile.name;
+			previewUrl = URL.createObjectURL(originalFile);
+		} finally {
+			isCompressing = false;
 		}
 	}
 
 	function handleClearFile() {
 		selectedFileName = '';
+		fileError = null;
+		if (previewUrl && previewUrl.startsWith('blob:')) {
+			URL.revokeObjectURL(previewUrl);
+		}
 		previewUrl = product?.imageUrl ?? null;
 		manualUrl = product?.imageUrl ?? '';
 		const fileInput = document.getElementById('admin-product-file-input') as HTMLInputElement;
@@ -118,9 +168,13 @@
 						bind:value={priceInput}
 						required
 					/>
-					<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]">KM</span>
+					<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]"
+						>KM</span
+					>
 				</div>
-				<span class="mt-1 block text-[11px] text-[#5b5f60]">Aktivna cijena po kojoj kupac naručuje artikal.</span>
+				<span class="mt-1 block text-[11px] text-[#5b5f60]"
+					>Aktivna cijena po kojoj kupac naručuje artikal.</span
+				>
 			</label>
 
 			<label class="block">
@@ -136,10 +190,14 @@
 						placeholder="npr. 55.00"
 						bind:value={originalPriceInput}
 					/>
-					<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]">KM</span>
+					<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]"
+						>KM</span
+					>
 				</div>
 				{#if discountPercent}
-					<span class="mt-1.5 inline-flex items-center gap-1.5 rounded-md bg-[#ba1a1a]/10 px-2.5 py-1 text-xs font-bold text-[#ba1a1a]">
+					<span
+						class="mt-1.5 inline-flex items-center gap-1.5 rounded-md bg-[#ba1a1a]/10 px-2.5 py-1 text-xs font-bold text-[#ba1a1a]"
+					>
 						🔥 Akcija aktivna: -{discountPercent}% popusta za kupca
 					</span>
 				{:else}
@@ -315,6 +373,14 @@
 							<span class="text-[10px] mt-1 font-medium">Nema slike</span>
 						</div>
 					{/if}
+
+					{#if isCompressing}
+						<div
+							class="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-[2px]"
+						>
+							<Loader2 class="size-6 animate-spin text-[#1b3022]" />
+						</div>
+					{/if}
 				</div>
 
 				<!-- Upload actions -->
@@ -329,20 +395,28 @@
 					<div class="mt-3 flex flex-wrap items-center gap-3">
 						<label
 							class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#1b3022] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#061b0e] active:scale-95"
+							class:opacity-60={isCompressing}
+							class:pointer-events-none={isCompressing}
 						>
-							<Upload class="size-4" />
-							<span>{selectedFileName ? 'Promijeni sliku' : 'Odaberi sliku'}</span>
+							{#if isCompressing}
+								<Loader2 class="size-4 animate-spin" />
+								<span>Optimizujem sliku...</span>
+							{:else}
+								<Upload class="size-4" />
+								<span>{selectedFileName ? 'Promijeni sliku' : 'Odaberi sliku'}</span>
+							{/if}
 							<input
 								id="admin-product-file-input"
 								type="file"
 								name="imageFile"
 								accept="image/jpeg,image/png,image/webp,image/jpg"
 								class="hidden"
+								disabled={isCompressing}
 								onchange={handleFileChange}
 							/>
 						</label>
 
-						{#if selectedFileName}
+						{#if selectedFileName && !isCompressing}
 							<div
 								class="inline-flex items-center gap-2 rounded-xl border border-[#d0e9d4] bg-[#f2fbf3] px-3 py-2 text-xs font-bold text-[#1b5e20]"
 							>
@@ -359,6 +433,15 @@
 							</div>
 						{/if}
 					</div>
+
+					{#if fileError}
+						<div
+							class="mt-2.5 flex items-center gap-2 rounded-xl border border-[#f1b9b9] bg-[#fff5f5] px-3.5 py-2 text-xs font-semibold text-[#ba1a1a]"
+						>
+							<AlertCircle class="size-4 shrink-0" />
+							<span>{fileError}</span>
+						</div>
+					{/if}
 
 					<!-- Direct URL input (opcionalno) -->
 					<div class="mt-3">
@@ -389,10 +472,16 @@
 	<!-- Submit CTA -->
 	<div class="mt-8 flex items-center justify-end gap-4 border-t border-[#e3e2e0] pt-6">
 		<button
-			class="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-full bg-[#1b3022] px-8 text-sm font-bold text-white shadow-md transition hover:bg-[#061b0e] active:scale-98 cursor-pointer"
+			class="w-full sm:w-auto inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#1b3022] px-8 text-sm font-bold text-white shadow-md transition hover:bg-[#061b0e] active:scale-98 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
 			type="submit"
+			disabled={isCompressing}
 		>
-			{submitLabel}
+			{#if isCompressing}
+				<Loader2 class="size-4 animate-spin" />
+				<span>Optimizujem sliku...</span>
+			{:else}
+				<span>{submitLabel}</span>
+			{/if}
 		</button>
 	</div>
 </div>
