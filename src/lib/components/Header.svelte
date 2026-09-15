@@ -70,10 +70,16 @@
 		<div class="flex items-center justify-between gap-4 shrink-0">
 			<a
 				href={resolve('/')}
-				class="text-2xl sm:text-[26px] font-bold tracking-tight text-[#061b0e] transition hover:opacity-85"
+				class="flex items-center transition hover:opacity-85"
 				aria-label="Sezzam početna"
 			>
-				Sezzam
+				<img
+					src="/images/logo/sezzam-logo-full.png"
+					alt="Sezzam"
+					class="h-9 sm:h-10 md:h-11 w-auto object-contain"
+					width="887"
+					height="434"
+				/>
 			</a>
 			<div class="flex items-center gap-2 lg:hidden">
 				<a

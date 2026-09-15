@@ -16,10 +16,16 @@
 			<div>
 				<a
 					href={resolve('/')}
-					class="inline-block text-2xl font-bold tracking-tight text-white transition hover:opacity-85"
+					class="inline-block transition hover:opacity-85"
 					aria-label="Sezzam početna"
 				>
-					Sezzam
+					<img
+						src="/images/logo/sezzam-logo-white.png"
+						alt="Sezzam"
+						class="h-10 sm:h-11 w-auto object-contain"
+						width="887"
+						height="434"
+					/>
 				</a>
 				<p class="mt-3 text-xs font-semibold uppercase tracking-wider text-[#8da391]">
 					WPC Decking, SPC/LVT & Zidne Obloge

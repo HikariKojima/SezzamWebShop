@@ -32,9 +32,11 @@
 				<div class="flex items-center gap-3">
 					<a href={resolve('/admin')} class="flex items-center gap-2">
 						<img
-							src="/images/logo/logo.png"
+							src="/images/logo/sezzam-logo-full.png"
 							alt="Sezzam Logo"
-							class="h-7 sm:h-8 w-auto object-contain"
+							class="h-8 sm:h-9 w-auto object-contain"
+							width="887"
+							height="434"
 						/>
 						<span
 							class="rounded-md bg-[#1b3022] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white"
