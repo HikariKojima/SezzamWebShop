@@ -37,4 +37,6 @@ export type Product = {
 	availability: ProductAvailability;
 	art: ProductArt;
 	imageUrl?: string | null;
+	images?: string[];
+	hasDualSide?: boolean;
 };

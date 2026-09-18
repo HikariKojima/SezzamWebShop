@@ -29,9 +29,60 @@ type ProductFormValues = {
 	availability: ProductAvailabilityValue;
 	art: ProductArtValue;
 	imageUrl: string | null;
+	images: string | null;
+	hasDualSide: boolean;
 	active: boolean;
 	sortOrder: number;
 };
+
+async function uploadSingleFile(file: File): Promise<string | null> {
+	if (!file || typeof file !== 'object' || !('size' in file) || file.size === 0) {
+		return null;
+	}
+
+	const ext = (file.name.split('.').pop() || 'webp').toLowerCase();
+	const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'avif'].includes(ext) ? ext : 'webp';
+	const safeBaseName = file.name
+		.replace(/\.[^/.]+$/, '')
+		.toLowerCase()
+		.replace(/[^a-z0-9]/g, '-')
+		.replace(/-+/g, '-')
+		.slice(0, 40);
+
+	const fileName = `${safeBaseName || 'proizvod'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${safeExt}`;
+
+	const blobToken =
+		process.env.PublicBlob_READ_WRITE_TOKEN ||
+		process.env.PUBLICBLOB_READ_WRITE_TOKEN ||
+		process.env.BLOB_READ_WRITE_TOKEN;
+
+	const storeId =
+		process.env.PublicBlob_STORE_ID || process.env.PUBLICBLOB_STORE_ID || process.env.BLOB_STORE_ID;
+
+	try {
+		const blob = await put(`products/${fileName}`, file, {
+			access: 'public',
+			...(blobToken ? { token: blobToken } : {}),
+			...(storeId ? { storeId } : {})
+		});
+		if (blob && blob.url) {
+			return blob.url;
+		}
+	} catch (blobError) {
+		console.warn(
+			'Vercel Blob upload nije uspio (vjerovatno fali BLOB_READ_WRITE_TOKEN na Vercelu). Koristim Base64 fallback:',
+			blobError
+		);
+		try {
+			const buffer = Buffer.from(await file.arrayBuffer());
+			const mimeType = file.type || 'image/webp';
+			return `data:${mimeType};base64,${buffer.toString('base64')}`;
+		} catch (fallbackError) {
+			console.error('Greška pri kreiranju fallback slike:', fallbackError);
+		}
+	}
+	return null;
+}
 
 const availabilityValues = availabilityOptions.map((option) => option.value);
 const categoryValues = productCategoryOptions.map((option) => option.value);
@@ -84,64 +135,52 @@ export async function parseProductForm(formData: FormData) {
 	const availability = parseOption(formData.get('availability'), availabilityValues);
 	const art = parseOption(formData.get('art'), artValues);
 	const sortOrder = parseNonNegativeInteger(formData.get('sortOrder'));
+	const hasDualSide =
+		formData.get('hasDualSide') === 'true' || formData.get('hasDualSide') === 'on';
 
-	let imageUrl = String(formData.get('imageUrl') ?? '').trim() || null;
-
-	const imageFile = formData.get('imageFile');
-	if (
-		imageFile &&
-		typeof imageFile === 'object' &&
-		'size' in imageFile &&
-		(imageFile as File).size > 0
-	) {
-		const file = imageFile as File;
-
-		const ext = (file.name.split('.').pop() || 'webp').toLowerCase();
-		const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'avif'].includes(ext) ? ext : 'webp';
-		const safeBaseName = file.name
-			.replace(/\.[^/.]+$/, '')
-			.toLowerCase()
-			.replace(/[^a-z0-9]/g, '-')
-			.replace(/-+/g, '-')
-			.slice(0, 40);
-
-		const fileName = `${safeBaseName || 'proizvod'}-${Date.now()}.${safeExt}`;
-
-		const blobToken =
-			process.env.PublicBlob_READ_WRITE_TOKEN ||
-			process.env.PUBLICBLOB_READ_WRITE_TOKEN ||
-			process.env.BLOB_READ_WRITE_TOKEN;
-
-		const storeId =
-			process.env.PublicBlob_STORE_ID ||
-			process.env.PUBLICBLOB_STORE_ID ||
-			process.env.BLOB_STORE_ID;
-
+	// Collect existing images preserved by user in the admin UI
+	let existingImages: string[] = [];
+	const rawExistingImages = formData.get('existingImages');
+	if (typeof rawExistingImages === 'string' && rawExistingImages.trim()) {
 		try {
-			// 1. Primarno: pokušaj upload na Vercel Blob (najefikasniji CDN)
-			const blob = await put(`products/${fileName}`, file, {
-				access: 'public',
-				...(blobToken ? { token: blobToken } : {}),
-				...(storeId ? { storeId } : {})
-			});
-			if (blob && blob.url) {
-				imageUrl = blob.url;
+			const parsed = JSON.parse(rawExistingImages);
+			if (Array.isArray(parsed)) {
+				existingImages = parsed.filter(
+					(item): item is string => typeof item === 'string' && item.trim().length > 0
+				);
 			}
-		} catch (blobError) {
-			console.warn(
-				'Vercel Blob upload nije uspio (vjerovatno fali BLOB_READ_WRITE_TOKEN na Vercelu). Koristim Base64 fallback:',
-				blobError
-			);
-			try {
-				// 2. Pouzdani fallback: ako Vercel Blob nije konfigurisan, spremi optimizovanu WebP sliku direktno
-				const buffer = Buffer.from(await file.arrayBuffer());
-				const mimeType = file.type || 'image/webp';
-				imageUrl = `data:${mimeType};base64,${buffer.toString('base64')}`;
-			} catch (fallbackError) {
-				console.error('Greška pri kreiranju fallback slike:', fallbackError);
+		} catch {
+			existingImages = [];
+		}
+	}
+
+	// Legacy or direct manual URL
+	const directImageUrl = String(formData.get('imageUrl') ?? '').trim();
+	if (directImageUrl && !existingImages.includes(directImageUrl)) {
+		existingImages.push(directImageUrl);
+	}
+
+	// Process newly uploaded files (can be multiple files under imageFiles or imageFile)
+	const rawFiles = [...formData.getAll('imageFiles'), ...formData.getAll('imageFile')];
+	const uploadedUrls: string[] = [];
+
+	for (const fileCandidate of rawFiles) {
+		if (
+			fileCandidate &&
+			typeof fileCandidate === 'object' &&
+			'size' in fileCandidate &&
+			(fileCandidate as File).size > 0
+		) {
+			const uploadedUrl = await uploadSingleFile(fileCandidate as File);
+			if (uploadedUrl) {
+				uploadedUrls.push(uploadedUrl);
 			}
 		}
 	}
+
+	const allImages = [...existingImages, ...uploadedUrls];
+	const primaryImageUrl = allImages.length > 0 ? allImages[0] : null;
+	const serializedImages = allImages.length > 0 ? JSON.stringify(allImages) : null;
 
 	if (
 		!name ||
@@ -173,7 +212,9 @@ export async function parseProductForm(formData: FormData) {
 		stockQuantity,
 		availability,
 		art,
-		imageUrl,
+		imageUrl: primaryImageUrl,
+		images: serializedImages,
+		hasDualSide,
 		sortOrder,
 		active: formData.has('active')
 	};

@@ -8,7 +8,8 @@
 		FolderTree,
 		ExternalLink,
 		LogOut,
-		Store
+		Store,
+		LayoutTemplate
 	} from '@lucide/svelte';
 
 	let { data, children } = $props();
@@ -94,6 +95,17 @@
 						href={resolve('/admin/categories')}
 					>
 						Kategorije
+					</a>
+					<a
+						class={[
+							'rounded-full px-4 py-2 transition',
+							isActive('/admin/homepage')
+								? 'bg-[#1b3022] text-white shadow-xs'
+								: 'border border-[#c3c8c1] bg-white text-[#061b0e] hover:bg-[#f5f3f0]'
+						]}
+						href={resolve('/admin/homepage')}
+					>
+						Početna
 					</a>
 					<a
 						class="rounded-full border border-[#c3c8c1] bg-white px-3.5 py-2 text-[#061b0e] transition hover:bg-[#f5f3f0] flex items-center gap-1.5 text-xs font-semibold"
@@ -223,6 +235,24 @@
 					<FolderTree class="size-4.5" />
 				</div>
 				<span class="mt-0.5 text-[11px]">Kategorije</span>
+			</a>
+
+			<a
+				href={resolve('/admin/homepage')}
+				class={[
+					'flex flex-1 flex-col items-center justify-center py-1 text-center transition active:scale-95',
+					isActive('/admin/homepage') ? 'text-[#1b3022] font-bold' : 'text-[#737973] font-medium'
+				]}
+			>
+				<div
+					class={[
+						'grid size-8 place-items-center rounded-full transition',
+						isActive('/admin/homepage') ? 'bg-[#1b3022]/10 text-[#1b3022]' : 'text-[#5b5f60]'
+					]}
+				>
+					<LayoutTemplate class="size-4.5" />
+				</div>
+				<span class="mt-0.5 text-[11px]">Početna</span>
 			</a>
 		</nav>
 	</main>

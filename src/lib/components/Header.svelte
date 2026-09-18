@@ -161,8 +161,12 @@
 												<p class="truncate text-sm font-semibold text-[#061b0e]">{product.name}</p>
 												<p class="mt-0.5 truncate text-xs text-[#5b5f60]">
 													{#if product.originalPrice && product.originalPrice > product.price}
-														<span class="line-through text-[#8a8f8a] mr-1">{formatPrice(product.originalPrice)} KM</span>
-														<span class="font-bold text-[#ba1a1a]">{formatPrice(product.price)} KM</span>
+														<span class="line-through text-[#8a8f8a] mr-1"
+															>{formatPrice(product.originalPrice)} KM</span
+														>
+														<span class="font-bold text-[#ba1a1a]"
+															>{formatPrice(product.price)} KM</span
+														>
 													{:else}
 														<span>{formatPrice(product.price)} KM</span>
 													{/if}

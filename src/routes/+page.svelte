@@ -10,8 +10,10 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import Hero from '$lib/components/Hero.svelte';
+	import DualSideShowcase from '$lib/components/DualSideShowcase.svelte';
 	import MaterialCalculator from '$lib/components/MaterialCalculator.svelte';
 	import ProductCard from '$lib/components/ProductCard.svelte';
+	import ProductQuickViewModal from '$lib/components/ProductQuickViewModal.svelte';
 	import SEO from '$lib/components/SEO.svelte';
 	import { env } from '$env/dynamic/public';
 	import type { CartItem } from '$lib/types/cart';
@@ -38,6 +40,15 @@
 	// Calculator modal state
 	let calculatorDialogOpen = $state(false);
 	let calculatorSelectedProduct = $state<Product | null>(null);
+
+	// QuickView gallery modal state
+	let quickViewOpen = $state(false);
+	let quickViewProduct = $state<Product | null>(null);
+
+	function openQuickViewModal(product: Product) {
+		quickViewProduct = product;
+		quickViewOpen = true;
+	}
 
 	let products = $derived(data.products);
 	let cartCount = $derived(cartItems.reduce((total, item) => total + item.quantity, 0));
@@ -336,7 +347,10 @@
 		}}
 	/>
 
-	<Hero />
+	<Hero settings={data.settings} />
+
+	<!-- 2-in-1 Dual-Side Reversible Decking Spotlight Showcase -->
+	<DualSideShowcase settings={data.settings} />
 
 	<!-- Catalog / Materials Section -->
 	<section id="materijali" class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-12 flex-1">
@@ -372,6 +386,7 @@
 							onIncrease={() => increaseQuantity(product.id)}
 							onDecrease={() => decreaseQuantity(product.id)}
 							onOpenCalculator={openCalculatorModal}
+							onOpenQuickView={openQuickViewModal}
 						/>
 					</div>
 				{/each}
@@ -395,7 +410,7 @@
 	<!-- Dedicated Calculator Dialog for Product Cards (Bottom sheet on mobile, spacious modal on desktop) -->
 	<Dialog.Root bind:open={calculatorDialogOpen}>
 		<Dialog.Content
-			class="fixed bottom-0 left-0 right-0 top-auto z-50 flex max-h-[92vh] w-full max-w-full translate-x-0 translate-y-0 flex-col overflow-hidden rounded-b-none rounded-t-3xl border-[#c3c8c1] bg-white p-0 shadow-2xl transition-all sm:top-1/2 sm:left-1/2 sm:right-auto sm:bottom-auto sm:w-[92vw] sm:max-w-5xl lg:max-w-6xl xl:max-w-[1250px] sm:max-h-[92vh] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl"
+			class="fixed bottom-0 left-0 right-0 top-auto z-50 flex max-h-[92vh] w-full max-w-full translate-x-0 translate-y-0 flex-col overflow-hidden rounded-b-none rounded-t-3xl border-[#c3c8c1] bg-white p-0 shadow-2xl transition-all sm:top-1/2 sm:left-1/2 sm:right-auto sm:bottom-auto sm:w-[92vw] sm:max-w-5xl lg:max-w-6xl xl:max-w-312.5 sm:max-h-[92vh] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl"
 		>
 			<!-- Mobile drag / sheet indicator -->
 			<div class="mx-auto mt-2.5 h-1.5 w-12 shrink-0 rounded-full bg-[#d6d1c8] sm:hidden"></div>
@@ -409,7 +424,9 @@
 				</Dialog.Description>
 			</Dialog.Header>
 
-			<div class="custom-scrollbar flex-1 overflow-y-auto overscroll-contain px-5 py-4 pb-12 sm:px-8 sm:py-6 sm:pb-12 lg:px-10 lg:py-8 lg:pb-12">
+			<div
+				class="custom-scrollbar flex-1 overflow-y-auto overscroll-contain px-5 py-4 pb-12 sm:px-8 sm:py-6 sm:pb-12 lg:px-10 lg:py-8 lg:pb-12"
+			>
 				<MaterialCalculator
 					{products}
 					initialProduct={calculatorSelectedProduct}
@@ -422,6 +439,17 @@
 			</div>
 		</Dialog.Content>
 	</Dialog.Root>
+
+	<!-- Product QuickView Lightbox Gallery Modal -->
+	<ProductQuickViewModal
+		bind:open={quickViewOpen}
+		product={quickViewProduct}
+		quantity={quickViewProduct ? getQuantity(quickViewProduct.id) : 0}
+		onAdd={(id) => addToCart(id)}
+		onIncrease={(id) => increaseQuantity(id)}
+		onDecrease={(id) => decreaseQuantity(id)}
+		onOpenCalculator={(p) => openCalculatorModal(p)}
+	/>
 
 	<!-- Attention-grabbing Cart Toast Bar (Bottom action bar) -->
 	<CartToastBar

@@ -146,8 +146,12 @@
 							</p>
 							<div class="flex items-center gap-1.5">
 								<p class="text-sm font-black text-[#ba1a1a]">{formatPrice(product.price)} KM</p>
-								<span class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.5 text-[10px] font-extrabold text-[#ba1a1a]">
-									-{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+								<span
+									class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.5 text-[10px] font-extrabold text-[#ba1a1a]"
+								>
+									-{Math.round(
+										((product.originalPrice - product.price) / product.originalPrice) * 100
+									)}%
 								</span>
 							</div>
 						{:else}
@@ -250,8 +254,12 @@
 									<span class="text-base font-black text-[#ba1a1a]">
 										{formatPrice(product.price)} KM
 									</span>
-									<span class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.2 text-[10px] font-extrabold text-[#ba1a1a]">
-										-{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+									<span
+										class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.2 text-[10px] font-extrabold text-[#ba1a1a]"
+									>
+										-{Math.round(
+											((product.originalPrice - product.price) / product.originalPrice) * 100
+										)}%
 									</span>
 								{:else}
 									<span class="text-base font-extrabold text-[#061b0e]">

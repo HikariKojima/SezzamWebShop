@@ -31,8 +31,8 @@
 					WPC Decking, SPC/LVT & Zidne Obloge
 				</p>
 				<p class="mt-4 text-sm leading-relaxed text-[#c0cac2]">
-					Vrhunski WPC decking za terase, balkone i bazene, kvalitetne SPC i LVT podne obloge, te moderne zidne obloge.
-					Dugotrajna rješenja sa brzom isporukom u BiH.
+					Vrhunski WPC decking za terase, balkone i bazene, kvalitetne SPC i LVT podne obloge, te
+					moderne zidne obloge. Dugotrajna rješenja sa brzom isporukom u BiH.
 				</p>
 			</div>
 

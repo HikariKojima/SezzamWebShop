@@ -36,6 +36,8 @@ export const products = pgTable(
 		availability: varchar('availability', { length: 40 }).notNull(),
 		art: varchar('art', { length: 40 }).notNull(),
 		imageUrl: text('image_url'),
+		images: text('images'),
+		hasDualSide: boolean('has_dual_side').notNull().default(false),
 		active: boolean('active').notNull().default(true),
 		sortOrder: integer('sort_order').notNull().default(0),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -118,3 +120,18 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
 		references: [products.id]
 	})
 }));
+
+export const siteSettings = pgTable('site_settings', {
+	id: varchar('id', { length: 64 }).primaryKey().default('homepage'),
+	heroTagline: text('hero_tagline'),
+	heroTitle: text('hero_title'),
+	heroSubtitle: text('hero_subtitle'),
+	heroImageUrl: text('hero_image_url'),
+	spotlightQuote: text('spotlight_quote'),
+	spotlightImageUrl: text('spotlight_image_url'),
+	spotlightTitle: text('spotlight_title'),
+	spotlightSubtitle: text('spotlight_subtitle'),
+	contactPhone: text('contact_phone'),
+	contactEmail: text('contact_email'),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});

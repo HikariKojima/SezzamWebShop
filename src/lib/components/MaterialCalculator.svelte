@@ -1,12 +1,5 @@
 <script lang="ts">
-	import {
-		Calculator,
-		Info,
-		Plus,
-		Square,
-		Circle,
-		Grid
-	} from '@lucide/svelte';
+	import { Calculator, Info, Plus, Square, Circle, Grid } from '@lucide/svelte';
 	import type { Product } from '$lib/types/product';
 
 	let {
@@ -277,7 +270,9 @@
 					>
 						<Square class="size-5 sm:size-6 mb-1.5 shrink-0" />
 						<span class="w-full truncate text-xs sm:text-sm font-bold">Pravougaonik</span>
-						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap">+10% rezerva</span>
+						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap"
+							>+10% rezerva</span
+						>
 					</button>
 
 					<!-- L-Shape -->
@@ -303,7 +298,9 @@
 							<path d="M4 4v16h16v-7h-9V4H4z" />
 						</svg>
 						<span class="w-full truncate text-xs sm:text-sm font-bold">L-Oblik</span>
-						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap">+12% rezerva</span>
+						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap"
+							>+12% rezerva</span
+						>
 					</button>
 
 					<!-- Circle -->
@@ -319,7 +316,9 @@
 					>
 						<Circle class="size-5 sm:size-6 mb-1.5 shrink-0" />
 						<span class="w-full truncate text-xs sm:text-sm font-bold">Krug / Luk</span>
-						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap">+15% rezerva</span>
+						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap"
+							>+15% rezerva</span
+						>
 					</button>
 
 					<!-- Custom area -->
@@ -335,14 +334,18 @@
 					>
 						<Grid class="size-5 sm:size-6 mb-1.5 shrink-0" />
 						<span class="w-full truncate text-xs sm:text-sm font-bold">Direktan m²</span>
-						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap">+10% rezerva</span>
+						<span class="text-[10px] sm:text-[11px] opacity-80 mt-0.5 whitespace-nowrap"
+							>+10% rezerva</span
+						>
 					</button>
 				</div>
 			</div>
 
 			<!-- 2. Dynamic Input Fields Based on Selected Shape -->
 			<div class="rounded-2xl border border-[#e3e2e0] bg-[#fbf9f6] p-4 sm:p-5">
-				<span class="block text-xs sm:text-sm font-bold text-[#061b0e] mb-3"> 2. Unesite dimenzije: </span>
+				<span class="block text-xs sm:text-sm font-bold text-[#061b0e] mb-3">
+					2. Unesite dimenzije:
+				</span>
 
 				{#if selectedShape === 'rectangle'}
 					<div class="grid grid-cols-2 gap-4">
@@ -533,7 +536,8 @@
 						{#if selectedShape === 'circle'}
 							Kružno i lučno rezanje dasaka stvara veći škart, pa se preporučuje 15% rezerve.
 						{:else if selectedShape === 'l-shape'}
-							Unutrašnji uglovi i preklopni spojevi zahtijevaju 12% rezerve radi preciznog uklapanja.
+							Unutrašnji uglovi i preklopni spojevi zahtijevaju 12% rezerve radi preciznog
+							uklapanja.
 						{:else}
 							Preporučeni standard nalaže 10% rezerve za dilatacijske razmake, rezove uz zid i lom.
 						{/if}
@@ -612,9 +616,12 @@
 					<div class="mt-4 flex items-center justify-between border-t border-[#e3e2e0] pt-4">
 						<div>
 							<p class="text-xs sm:text-sm font-semibold text-[#5b5f60]">
-								Okvirna cijena ({Math.ceil(grossArea)} {selectedProduct.unit}):
+								Okvirna cijena ({Math.ceil(grossArea)}
+								{selectedProduct.unit}):
 							</p>
-							<p class="text-2xl sm:text-3xl font-black text-[#061b0e]">{formatPrice(estimatedTotal)} KM</p>
+							<p class="text-2xl sm:text-3xl font-black text-[#061b0e]">
+								{formatPrice(estimatedTotal)} KM
+							</p>
 						</div>
 					</div>
 				{:else}

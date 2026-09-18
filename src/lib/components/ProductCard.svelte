@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
-	import { Calculator } from '@lucide/svelte';
+	import { Calculator, ChevronLeft, ChevronRight, Layers, Eye } from '@lucide/svelte';
 
 	import type { Product } from '$lib/types/product';
 
@@ -10,7 +11,8 @@
 		onAdd,
 		onIncrease,
 		onDecrease,
-		onOpenCalculator
+		onOpenCalculator,
+		onOpenQuickView
 	}: {
 		product: Product;
 		quantity: number;
@@ -18,7 +20,43 @@
 		onIncrease: () => void;
 		onDecrease: () => void;
 		onOpenCalculator?: (product: Product) => void;
+		onOpenQuickView?: (product: Product) => void;
 	} = $props();
+
+	type CardSlide =
+		{ type: 'split'; leftUrl: string; rightUrl: string } | { type: 'image'; url: string };
+
+	let currentSlide = $state(0);
+	let isHovered = $state(false);
+	let isVisibleOnScreen = $state(false);
+	let cardElement: HTMLElement | null = $state(null);
+
+	// Touch tracking for swipe
+	let touchStartX = 0;
+	let touchEndX = 0;
+
+	let slides = $derived.by<CardSlide[]>(() => {
+		const rawImages =
+			product.images && product.images.length > 0
+				? product.images
+				: product.imageUrl
+					? [product.imageUrl]
+					: [];
+
+		const result: CardSlide[] = [];
+
+		if (product.hasDualSide) {
+			const left = rawImages[0] || '/images/showcase/texture-3d-wood.jpg';
+			const right = rawImages[1] || '/images/showcase/texture-grooved.jpg';
+			result.push({ type: 'split', leftUrl: left, rightUrl: right });
+		}
+
+		for (const url of rawImages) {
+			result.push({ type: 'image', url });
+		}
+
+		return result;
+	});
 
 	function formatPrice(price: number) {
 		return price.toFixed(2).replace('.', ',');
@@ -69,18 +107,95 @@
 			product.name.toLowerCase().includes('pod') ||
 			product.name.toLowerCase().includes('ploce')
 	);
+
+	function nextSlide(e?: Event) {
+		if (e) e.stopPropagation();
+		if (slides.length <= 1) return;
+		currentSlide = (currentSlide + 1) % slides.length;
+	}
+
+	function prevSlide(e?: Event) {
+		if (e) e.stopPropagation();
+		if (slides.length <= 1) return;
+		currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+	}
+
+	function goToSlide(index: number, e?: Event) {
+		if (e) e.stopPropagation();
+		currentSlide = index;
+	}
+
+	function handleTouchStart(e: TouchEvent) {
+		touchStartX = e.changedTouches[0].screenX;
+	}
+
+	function handleTouchEnd(e: TouchEvent) {
+		touchEndX = e.changedTouches[0].screenX;
+		const diff = touchStartX - touchEndX;
+		if (Math.abs(diff) > 40) {
+			if (diff > 0) {
+				nextSlide();
+			} else {
+				prevSlide();
+			}
+		}
+	}
+
+	// Performance-optimized Auto-Slideshow: ONLY active when card is visible in viewport!
+	onMount(() => {
+		if (!cardElement) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					isVisibleOnScreen = entry.isIntersecting;
+				}
+			},
+			{ threshold: 0.2 }
+		);
+
+		observer.observe(cardElement);
+
+		const interval = setInterval(() => {
+			if (slides.length > 1 && isVisibleOnScreen && !isHovered) {
+				currentSlide = (currentSlide + 1) % slides.length;
+			}
+		}, 3600);
+
+		return () => {
+			observer.disconnect();
+			clearInterval(interval);
+		};
+	});
 </script>
 
 <article
+	bind:this={cardElement}
 	class="group flex flex-col justify-between overflow-hidden rounded-2xl border border-[#c3c8c1] bg-white transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(27,28,26,0.08)] hover:border-[#1b3022]/40"
 	in:fly={{ y: 10, duration: 180 }}
 	out:fade={{ duration: 120 }}
+	onmouseenter={() => (isHovered = true)}
+	onmouseleave={() => (isHovered = false)}
 >
 	<div>
-		<!-- Full-width Image Area with Overlapped Badges -->
-		<div class="relative aspect-[4/3] w-full overflow-hidden bg-[#f5f3f0]">
+		<!-- Full-width Image Area with Carousel & Overlapped Badges -->
+		<div
+			class="relative aspect-4/3 w-full overflow-hidden bg-[#f5f3f0] cursor-pointer select-none"
+			role="button"
+			tabindex="0"
+			onclick={() => onOpenQuickView?.(product)}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					onOpenQuickView?.(product);
+				}
+			}}
+			ontouchstart={handleTouchStart}
+			ontouchend={handleTouchEnd}
+		>
+			<!-- Top Left: Action Discount Badge -->
 			{#if discountPercent}
-				<div class="absolute left-3 top-3 z-10">
+				<div class="absolute left-3 top-3 z-20">
 					<span
 						class="inline-flex items-center gap-1 rounded-full bg-[#ba1a1a] px-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-md"
 					>
@@ -89,38 +204,154 @@
 				</div>
 			{/if}
 
-			{#if product.tag}
-				<div class="absolute right-3 top-3 z-10">
+			<!-- Top Right: Product Tag / 2-u-1 Badge -->
+			<div class="absolute right-3 top-3 z-20 flex flex-col items-end gap-1.5">
+				{#if product.tag}
 					<span
 						class="inline-flex items-center rounded-full bg-[#1b3022]/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-white shadow-xs"
 					>
 						{product.tag}
 					</span>
-				</div>
-			{/if}
+				{/if}
 
-			{#if product.imageUrl}
-				<img
-					src={product.imageUrl}
-					alt={product.name}
-					class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-					loading="lazy"
-				/>
+				{#if product.hasDualSide}
+					<span
+						class="inline-flex items-center gap-1 rounded-full bg-emerald-800/90 backdrop-blur-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-xs border border-white/20"
+					>
+						<Layers class="size-2.5" />
+						<span>2-u-1 Lice</span>
+					</span>
+				{/if}
+			</div>
+
+			<!-- Carousel Slides -->
+			{#if slides.length > 0}
+				{@const activeSlide = slides[currentSlide]}
+
+				{#if activeSlide.type === 'split'}
+					<!-- Split 2-in-1 Dual Face Display (50% left / 50% right) -->
+					<div class="relative h-full w-full flex overflow-hidden">
+						<!-- Left Side: Lice A (3D Wood) -->
+						<div class="relative w-1/2 h-full overflow-hidden border-r border-white/60">
+							<img
+								src={activeSlide.leftUrl}
+								alt={`${product.name} - Lice A`}
+								class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+								loading="lazy"
+							/>
+							<div
+								class="absolute inset-x-0 bottom-8 bg-linear-to-t from-black/80 via-black/30 to-transparent p-1.5 text-center"
+							>
+								<span
+									class="inline-flex items-center rounded-full bg-emerald-800/90 px-1.5 py-0.5 text-[9px] font-black text-white shadow-xs"
+								>
+									🌲 3D Godovi
+								</span>
+							</div>
+						</div>
+
+						<!-- Right Side: Lice B (Grooved Lines) -->
+						<div class="relative w-1/2 h-full overflow-hidden">
+							<img
+								src={activeSlide.rightUrl}
+								alt={`${product.name} - Lice B`}
+								class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+								loading="lazy"
+							/>
+							<div
+								class="absolute inset-x-0 bottom-8 bg-linear-to-t from-black/80 via-black/30 to-transparent p-1.5 text-center"
+							>
+								<span
+									class="inline-flex items-center rounded-full bg-[#1b3022]/90 px-1.5 py-0.5 text-[9px] font-black text-white shadow-xs"
+								>
+									➖ Ripne
+								</span>
+							</div>
+						</div>
+
+						<!-- Center Split Pill -->
+						<div
+							class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+						>
+							<span
+								class="rounded-full bg-[#1b3022]/90 px-2 py-0.5 text-[9px] font-black uppercase text-white shadow-md backdrop-blur-xs border border-white/30"
+							>
+								2-u-1
+							</span>
+						</div>
+					</div>
+				{:else}
+					<!-- Standard Slide Image -->
+					<img
+						src={activeSlide.url}
+						alt={product.name}
+						class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+						loading="lazy"
+					/>
+				{/if}
 			{:else}
 				<div class="flex h-full w-full items-center justify-center p-3">
 					<div class={`material-art w-full ${product.art}`} aria-hidden="true"></div>
 				</div>
 			{/if}
 
-			<!-- Overlapped availability badge -->
-			<div class="absolute bottom-3 right-3 z-10">
+			<!-- Quick-view hover icon overlay -->
+			<div
+				class="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+			>
 				<span
-					class={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold shadow-xs backdrop-blur-md ${avail.textClass}`}
+					class="inline-flex items-center gap-1.5 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm shadow-md"
+				>
+					<Eye class="size-3.5" />
+					<span>Uvećaj / Detalji</span>
+				</span>
+			</div>
+
+			<!-- Prev / Next navigation arrows -->
+			{#if slides.length > 1}
+				<button
+					type="button"
+					onclick={prevSlide}
+					class="absolute left-2 top-1/2 -translate-y-1/2 z-20 grid size-8 place-items-center rounded-full bg-white/85 text-[#1b1c1a] shadow-md backdrop-blur-xs opacity-0 transition group-hover:opacity-100 hover:bg-white active:scale-95 cursor-pointer"
+					aria-label="Prethodna slika"
+				>
+					<ChevronLeft class="size-4" />
+				</button>
+				<button
+					type="button"
+					onclick={nextSlide}
+					class="absolute right-2 top-1/2 -translate-y-1/2 z-20 grid size-8 place-items-center rounded-full bg-white/85 text-[#1b1c1a] shadow-md backdrop-blur-xs opacity-0 transition group-hover:opacity-100 hover:bg-white active:scale-95 cursor-pointer"
+					aria-label="Sljedeća slika"
+				>
+					<ChevronRight class="size-4" />
+				</button>
+			{/if}
+
+			<!-- Overlapped availability badge -->
+			<div class="absolute bottom-2.5 right-2.5 z-20">
+				<span
+					class={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold shadow-xs backdrop-blur-md ${avail.textClass}`}
 				>
 					<span class={`size-1.5 rounded-full ${avail.dotClass}`}></span>
 					<span>{avail.label}</span>
 				</span>
 			</div>
+
+			<!-- Carousel bottom dot indicators -->
+			{#if slides.length > 1}
+				<div class="absolute bottom-2.5 left-3 z-20 flex items-center gap-1.5">
+					{#each slides as slide, idx (slide.type === 'split' ? 'split' : `${slide.url}-${idx}`)}
+						<button
+							type="button"
+							onclick={(e) => goToSlide(idx, e)}
+							class={`h-1.5 rounded-full transition-all cursor-pointer ${
+								currentSlide === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/50'
+							}`}
+							aria-label={`Prikaži sliku ${idx + 1}`}
+						></button>
+					{/each}
+				</div>
+			{/if}
 		</div>
 
 		<!-- Card Content -->
@@ -130,7 +361,9 @@
 					{product.name}
 				</h2>
 			</div>
-			<p class="mt-2 min-h-11 text-xs leading-5 text-[#434843]">{product.description}</p>
+			<p class="mt-2 min-h-11 text-xs leading-5 text-[#434843] line-clamp-2">
+				{product.description}
+			</p>
 		</div>
 	</div>
 
@@ -169,7 +402,7 @@
 					aria-label={`Količina za ${product.name}`}
 				>
 					<button
-						class="grid size-9 place-items-center rounded-full text-lg font-medium transition hover:bg-[#efeeeb]"
+						class="grid size-9 place-items-center rounded-full text-lg font-medium transition hover:bg-[#efeeeb] cursor-pointer"
 						aria-label={`Smanji količinu za ${product.name}`}
 						onclick={onDecrease}
 					>
@@ -177,7 +410,7 @@
 					</button>
 					<span class="text-center text-sm font-bold">{quantity}</span>
 					<button
-						class="grid size-9 place-items-center rounded-full text-lg font-medium transition hover:bg-[#d0e9d4] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
+						class="grid size-9 place-items-center rounded-full text-lg font-medium transition hover:bg-[#d0e9d4] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent cursor-pointer"
 						aria-label={`Povećaj količinu za ${product.name}`}
 						onclick={onIncrease}
 						disabled={product.availability !== 'by-order' && quantity >= product.stockQuantity}
@@ -187,7 +420,7 @@
 				</div>
 			{:else}
 				<button
-					class="grid size-11 place-items-center rounded-full border border-[#c3c8c1] bg-[#fbf9f6] text-xl font-semibold leading-none text-[#061b0e] transition hover:border-[#1b3022] hover:bg-[#1b3022] hover:text-white disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-[#c3c8c1] disabled:hover:bg-[#fbf9f6] active:scale-95"
+					class="grid size-11 place-items-center rounded-full border border-[#c3c8c1] bg-[#fbf9f6] text-xl font-semibold leading-none text-[#061b0e] transition hover:border-[#1b3022] hover:bg-[#1b3022] hover:text-white disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-[#c3c8c1] disabled:hover:bg-[#fbf9f6] active:scale-95 cursor-pointer"
 					aria-label={`Dodaj ${product.name} u korpu`}
 					onclick={onAdd}
 					disabled={product.availability !== 'by-order' && product.stockQuantity <= 0}

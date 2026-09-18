@@ -32,11 +32,11 @@
 	<meta name="description" content={description} />
 	<meta name="keywords" content={keywords} />
 	<link rel="canonical" href={fullCanonical} />
-	<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-	<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png" />
-	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-	<link rel="shortcut icon" href="/favicon.ico" />
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2" />
+	<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+	<link rel="shortcut icon" href="/favicon.ico?v=2" />
 
 	<!-- Geografski tagovi za lokalno rangiranje u BiH -->
 	<meta name="geo.region" content="BA" />

@@ -1,32 +1,45 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import type { SiteSettings } from '$lib/types/settings';
+
+	let { settings }: { settings?: SiteSettings } = $props();
+
+	let tagline = $derived(settings?.heroTagline || 'WPC Decking, SPC/LVT, Podne i Zidne Obloge');
+	let title = $derived(
+		settings?.heroTitle || 'Vrhunski decking, podne i zidne obloge za vaš prostor.'
+	);
+	let subtitle = $derived(
+		settings?.heroSubtitle ||
+			'Specijalizovani za WPC kompozitni decking za terase, balkone i bazene, moderne SPC i LVT podne obloge, te dekorativne zidne obloge. Dugotrajnost, UV i vlagootpornost bez potrebe za lakiranjem.'
+	);
+	let phone = $derived(settings?.contactPhone || '+38761069798');
+	let heroImage = $derived(settings?.heroImageUrl || null);
 </script>
 
 <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-12 lg:py-12">
 	<div
-		class="grid overflow-hidden rounded-lg border border-[#c3c8c1] bg-white lg:min-h-100 lg:grid-cols-[1fr_1.05fr]"
+		class="grid overflow-hidden rounded-3xl border border-[#c3c8c1] bg-white shadow-sm lg:min-h-105 lg:grid-cols-[1fr_1.05fr]"
 	>
 		<div class="flex flex-col justify-center px-6 py-10 sm:px-12 lg:py-14">
-			<p class="mb-5 text-xs font-semibold uppercase tracking-wider text-[#4d6453]">
-				WPC Decking, SPC/LVT, Podne i Zidne Obloge
+			<p class="mb-5 text-xs font-bold uppercase tracking-wider text-[#4d6453]">
+				{tagline}
 			</p>
-			<h1 class="max-w-xl text-4xl font-semibold leading-tight text-[#061b0e] sm:text-5xl">
-				Vrhunski decking, podne i zidne obloge za vaš prostor.
+			<h1 class="max-w-xl text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[#061b0e]">
+				{title}
 			</h1>
-			<p class="mt-6 max-w-lg text-base leading-7 text-[#434843] sm:text-lg">
-				Specijalizovani za WPC kompozitni decking za terase, balkone i bazene, moderne SPC i LVT
-				podne obloge, te dekorativne zidne obloge. Dugotrajnost, UV i vlagootpornost bez potrebe za lakiranjem.
+			<p class="mt-6 max-w-lg text-sm sm:text-base lg:text-lg leading-relaxed text-[#434843]">
+				{subtitle}
 			</p>
 			<div class="mt-8 flex flex-col gap-3 sm:flex-row">
 				<a
 					href={resolve('/#materijali')}
-					class="inline-flex h-14 items-center justify-center rounded-full bg-[#1b3022] px-8 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(27,48,34,0.16)] transition hover:bg-[#061b0e]"
+					class="inline-flex h-14 items-center justify-center rounded-full bg-[#1b3022] px-8 text-sm font-bold text-white shadow-[0_18px_40px_rgba(27,48,34,0.16)] transition hover:bg-[#061b0e]"
 				>
 					Pregledaj ponudu
 				</a>
 				<a
-					href="tel:+38761069798"
-					class="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-[#737973] px-8 text-sm font-semibold text-[#1b1c1a] transition hover:border-[#1b3022] hover:bg-[#efeeeb]"
+					href={`tel:${phone.replace(/\s+/g, '')}`}
+					class="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-[#737973] px-8 text-sm font-bold text-[#1b1c1a] transition hover:border-[#1b3022] hover:bg-[#efeeeb]"
 				>
 					<span>Pozovite za savjet</span>
 				</a>
@@ -34,21 +47,29 @@
 		</div>
 
 		<div
-			class="hero-visual min-h-70 border-t border-[#e3e2e0] bg-[#efeeeb] lg:border-l lg:border-t-0"
+			class="hero-visual min-h-75 border-t border-[#e3e2e0] bg-[#efeeeb] lg:border-l lg:border-t-0 relative overflow-hidden"
 		>
-			<div class="material-stack" aria-hidden="true">
-				<div class="beam beam-top"></div>
-				<div class="beam beam-mid"></div>
-				<div class="beam beam-low"></div>
-				<div class="block-grid">
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
+			{#if heroImage}
+				<img
+					src={heroImage}
+					alt="Sezzam WPC Decking"
+					class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+				/>
+			{:else}
+				<div class="material-stack" aria-hidden="true">
+					<div class="beam beam-top"></div>
+					<div class="beam beam-mid"></div>
+					<div class="beam beam-low"></div>
+					<div class="block-grid">
+						<span></span>
+						<span></span>
+						<span></span>
+						<span></span>
+						<span></span>
+						<span></span>
+					</div>
 				</div>
-			</div>
+			{/if}
 		</div>
 	</div>
 </section>

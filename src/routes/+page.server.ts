@@ -21,6 +21,8 @@ import type { Actions } from './$types';
 const MAX_ITEM_QUANTITY = 10_000;
 
 import { products as fallbackProducts } from '$lib/data/products';
+import { getSiteSettings } from '$lib/server/siteSettings';
+import { defaultSiteSettings } from '$lib/types/settings';
 
 export async function load() {
 	try {
@@ -32,29 +34,47 @@ export async function load() {
 
 		const catRows = await db.select().from(categoriesTable).orderBy(asc(categoriesTable.sortOrder));
 
-		const products: Product[] = rows.map((product) => ({
-			id: product.id,
-			name: product.name,
-			description: product.description,
-			price: product.priceCents / 100,
-			originalPrice: product.originalPriceCents ? product.originalPriceCents / 100 : null,
-			unit: product.unit,
-			unitType: product.unitType as ProductUnitType,
-			tag: product.tag,
-			stock: product.stockLabel,
-			stockQuantity: Math.max(product.stockQuantity - product.reservedQuantity, 0),
-			category: product.categoryId as ProductCategory,
-			availability: product.availability as ProductAvailability,
-			art: product.art as ProductArt,
-			imageUrl: product.imageUrl
-		}));
+		const products: Product[] = rows.map((product) => {
+			let images: string[] = [];
+			if (product.images) {
+				try {
+					const parsed = JSON.parse(product.images);
+					if (Array.isArray(parsed)) images = parsed.filter(Boolean);
+				} catch {
+					images = [];
+				}
+			}
+			if (images.length === 0 && product.imageUrl) {
+				images = [product.imageUrl];
+			}
+			return {
+				id: product.id,
+				name: product.name,
+				description: product.description,
+				price: product.priceCents / 100,
+				originalPrice: product.originalPriceCents ? product.originalPriceCents / 100 : null,
+				unit: product.unit,
+				unitType: product.unitType as ProductUnitType,
+				tag: product.tag,
+				stock: product.stockLabel,
+				stockQuantity: Math.max(product.stockQuantity - product.reservedQuantity, 0),
+				category: product.categoryId as ProductCategory,
+				availability: product.availability as ProductAvailability,
+				art: product.art as ProductArt,
+				imageUrl: product.imageUrl,
+				images,
+				hasDualSide: Boolean(product.hasDualSide)
+			};
+		});
 
 		const categories = catRows.map((cat) => ({
 			id: cat.id,
 			name: cat.name
 		}));
 
-		return { products, categories };
+		const settings = await getSiteSettings();
+
+		return { products, categories, settings };
 	} catch (error) {
 		console.error('Baza podataka nedostupna tokom pokretanja, prikazujem fallback:', error);
 		return {
@@ -64,7 +84,8 @@ export async function load() {
 				{ id: 'spc', name: 'SPC Podovi' },
 				{ id: 'lvt', name: 'LVT Podovi' },
 				{ id: 'tekstilne-ploce', name: 'Tekstilne ploče' }
-			]
+			],
+			settings: defaultSiteSettings
 		};
 	}
 }

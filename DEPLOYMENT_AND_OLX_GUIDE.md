@@ -9,7 +9,9 @@ Ovaj dokument je pripremljen za vas i vašeg klijenta kako biste imali jasan pre
 Vaš klijent je spomenuo da već ima server i domenu, ali se brine da li je paket "premalen" za promet.
 
 ### Dobra vijest:
-SvelteKit je **jedan od najbržih i memorijski najefikasnijih web frameworka današnjice**. 
+
+SvelteKit je **jedan od najbržih i memorijski najefikasnijih web frameworka današnjice**.
+
 - Za razliku od teških WordPress/PHP sistema ili glomaznih Java servera, kompajlirana SvelteKit aplikacija zauzima **manje od 60-90 MB RAM memorije** u radu.
 - Stranice se renderuju u milisekundama, a asseti (CSS/JS) su izuzetno mali.
 - Baza podataka (Neon PostgreSQL) je cloud/serverless, što znači da ne troši resurse klijentovog servera!
@@ -19,9 +21,11 @@ SvelteKit je **jedan od najbržih i memorijski najefikasnijih web frameworka dan
 ## 2. Načini postavljanja na server
 
 ### Opcija A: Standardni VPS server (Ubuntu / Debian - Preporučeno)
+
 Ako klijent ima VPS (npr. Hetzner, DigitalOcean, Contabo, Linode):
 
 1. **Instalacija Node.js i PM2**:
+
    ```bash
    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
    sudo apt-get install -y nodejs
@@ -30,16 +34,19 @@ Ako klijent ima VPS (npr. Hetzner, DigitalOcean, Contabo, Linode):
 
 2. **Prebacivanje na `@sveltejs/adapter-node`**:
    U `package.json` i `svelte.config.js` zamijeniti `@sveltejs/adapter-auto` sa `@sveltejs/adapter-node`.
+
    ```bash
    npm install -D @sveltejs/adapter-node
    ```
 
 3. **Build aplikacije**:
+
    ```bash
    npm run build
    ```
 
 4. **Pokretanje servisa putem PM2**:
+
    ```bash
    pm2 start build/index.js --name "sezzam-webshop" --env PORT=3000
    pm2 save
@@ -66,10 +73,12 @@ Ako klijent ima VPS (npr. Hetzner, DigitalOcean, Contabo, Linode):
 ---
 
 ### Opcija B: cPanel Hosting sa "Setup Node.js App" opcijom
+
 Ako klijent ima cPanel shared hosting koji podržava Node.js:
+
 1. U cPanelu otvorite **"Setup Node.js App"**.
 2. Odaberite Node verziju (Node 20 ili 22 LTS).
-3. Postavite *Application root* (folder projekta) i *Application startup file* (`build/index.js`).
+3. Postavite _Application root_ (folder projekta) i _Application startup file_ (`build/index.js`).
 4. Upišite Environment varijable u cPanel interfejsu:
    - `DATABASE_URL` = Vaš Neon PostgreSQL connection string
    - `ADMIN_PASSWORD` = Sigurna lozinka za gazdu/admina
@@ -83,10 +92,10 @@ Ako klijent ima cPanel shared hosting koji podržava Node.js:
 
 U panelu gdje je kupljena domena (npr. BHTelecom, Domene.ba, Namecheap, Cloudflare), postavite sledeće DNS zapise:
 
-| Tip | Naziv (Host) | Vrijednost (Points to) | TTL |
-|---|---|---|---|
-| **A** | `@` (ili sezzam.ba) | `IP_ADRESA_SERVERA` | Automatski / 3600 |
-| **CNAME** | `www` | `sezzam.ba` | Automatski / 3600 |
+| Tip       | Naziv (Host)        | Vrijednost (Points to) | TTL               |
+| --------- | ------------------- | ---------------------- | ----------------- |
+| **A**     | `@` (ili sezzam.ba) | `IP_ADRESA_SERVERA`    | Automatski / 3600 |
+| **CNAME** | `www`               | `sezzam.ba`            | Automatski / 3600 |
 
 ---
 
@@ -95,6 +104,7 @@ U panelu gdje je kupljena domena (npr. BHTelecom, Domene.ba, Namecheap, Cloudfla
 Kada gazda doda proizvod na webshop (npr. Decking, Laminat, Cement), proizvod može automatski otići i na OLX.ba profil radnje.
 
 ### Kako funkcioniše OLX.ba API:
+
 1. **OLX Pro račun**: Potrebno je da klijent ima verifikovan **OLX Pro / OLX Radnja** nalog.
 2. **Kreiranje API tokena**:
    - U postavkama OLX radnje zatraži se API pristup (Bearer Token / API Key).
@@ -109,6 +119,7 @@ Kada gazda doda proizvod na webshop (npr. Decking, Laminat, Cement), proizvod mo
      - `images`: Slike artikla
 
 ### Plan za fazu aktivacije:
+
 - U formi za unos/uređivanje proizvoda u adminu (`/admin/products/new` i `/admin/products/[id]`) dodaje se prekidač:
   - `[x] Objavi i na OLX.ba`
   - Polje: `OLX Kategorija ID`

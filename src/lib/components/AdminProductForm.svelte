@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
-	import { Upload, Image as ImageIcon, X, Check, Loader2, AlertCircle } from '@lucide/svelte';
+	import { Image as ImageIcon, X, Loader2, AlertCircle, Star, Plus, Layers } from '@lucide/svelte';
 	import { compressImage } from '$lib/imageCompressor';
 	import {
 		availabilityOptions,
@@ -23,6 +22,8 @@
 		availability: string;
 		art: string;
 		imageUrl?: string | null;
+		images?: string | null;
+		hasDualSide?: boolean;
 		active: boolean;
 		sortOrder: number;
 	};
@@ -37,10 +38,18 @@
 		submitLabel?: string;
 	} = $props();
 
-	let previewUrl = $state<string | null>(null);
-	let selectedFileName = $state<string>('');
-	let manualUrl = $state<string>('');
+	type ManagedImage = {
+		id: string;
+		url: string;
+		file?: File;
+		isExisting: boolean;
+	};
+
+	let imageList = $state<ManagedImage[]>([]);
+	let hasDualSide = $state(false);
+	let manualUrl = $state('');
 	let isCompressing = $state(false);
+	let compressionProgress = $state('');
 	let fileError = $state<string | null>(null);
 
 	let priceInput = $state('');
@@ -61,85 +70,155 @@
 			: productCategoryOptions
 	);
 
+	let existingImagesJson = $derived(
+		JSON.stringify(imageList.filter((img) => img.isExisting).map((img) => img.url))
+	);
+	let primaryImageUrl = $derived(imageList.length > 0 ? imageList[0].url : '');
+
 	$effect(() => {
 		if (product) {
 			priceInput = product.price ? product.price.toFixed(2) : '';
 			originalPriceInput = product.originalPrice ? product.originalPrice.toFixed(2) : '';
+			hasDualSide = Boolean(product.hasDualSide);
+
+			const initialImages: ManagedImage[] = [];
+			if (product.images) {
+				try {
+					const parsed = JSON.parse(product.images);
+					if (Array.isArray(parsed)) {
+						parsed.forEach((url, index) => {
+							if (typeof url === 'string' && url.trim()) {
+								initialImages.push({
+									id: `existing-${index}-${url.slice(-10)}`,
+									url: url.trim(),
+									isExisting: true
+								});
+							}
+						});
+					}
+				} catch {
+					// fallback
+				}
+			}
+
+			if (initialImages.length === 0 && product.imageUrl) {
+				initialImages.push({
+					id: `existing-0-${product.imageUrl.slice(-10)}`,
+					url: product.imageUrl,
+					isExisting: true
+				});
+			}
+
+			imageList = initialImages;
 		}
 	});
 
-	$effect(() => {
-		if (product?.imageUrl && !selectedFileName) {
-			previewUrl = product.imageUrl;
-			manualUrl = product.imageUrl;
-		}
-	});
+	function syncFileInput() {
+		const hiddenInput = document.getElementById('admin-product-files-sync') as HTMLInputElement;
+		if (!hiddenInput) return;
 
-	async function handleFileChange(event: Event) {
+		try {
+			const dt = new DataTransfer();
+			for (const item of imageList) {
+				if (!item.isExisting && item.file) {
+					dt.items.add(item.file);
+				}
+			}
+			hiddenInput.files = dt.files;
+		} catch (e) {
+			console.warn('DataTransfer sync fallback:', e);
+		}
+	}
+
+	async function handleFilesSelected(event: Event) {
 		const target = event.target as HTMLInputElement;
 		if (!target.files || target.files.length === 0) return;
 
-		const originalFile = target.files[0];
+		const files = Array.from(target.files);
 		fileError = null;
 
-		// Client-side quick checks
-		if (!originalFile.type.startsWith('image/')) {
-			fileError = 'Odabrana datoteka mora biti slika (JPG, PNG, WEBP).';
-			target.value = '';
-			return;
-		}
-
-		if (originalFile.size > 35 * 1024 * 1024) {
-			fileError = 'Slika je prevelika (maksimalno 35 MB). Molimo odaberite manju sliku.';
+		if (imageList.length + files.length > 14) {
+			fileError = 'Maksimalno je dozvoljeno 14 slika po artiklu.';
 			target.value = '';
 			return;
 		}
 
 		isCompressing = true;
 		try {
-			// Optimizes smartphone photos down from 10MB+ to ~200-500KB WebP
-			const compressed = await compressImage(originalFile, {
-				maxDimension: 1600,
-				quality: 0.82
-			});
+			for (let i = 0; i < files.length; i++) {
+				const f = files[i];
+				compressionProgress = `Optimizujem sliku ${i + 1}/${files.length}...`;
 
-			// Reassign the compressed file to the file input
-			try {
-				const dt = new DataTransfer();
-				dt.items.add(compressed);
-				target.files = dt.files;
-			} catch {
-				// Fallback if browser limits DataTransfer assignment
+				if (!f.type.startsWith('image/')) {
+					continue;
+				}
+
+				if (f.size > 35 * 1024 * 1024) {
+					fileError = `Slika ${f.name} je prevelika (maksimalno 35 MB).`;
+					continue;
+				}
+
+				const compressed = await compressImage(f, {
+					maxDimension: 1600,
+					quality: 0.82
+				});
+
+				const previewUrl = URL.createObjectURL(compressed);
+
+				imageList.push({
+					id: `new-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+					url: previewUrl,
+					file: compressed,
+					isExisting: false
+				});
 			}
 
-			selectedFileName = compressed.name;
-			if (previewUrl && previewUrl.startsWith('blob:')) {
-				URL.revokeObjectURL(previewUrl);
-			}
-			previewUrl = URL.createObjectURL(compressed);
-			manualUrl = '';
-		} catch (err: unknown) {
-			console.error('Greška pri optimizaciji slike:', err);
-			fileError = err instanceof Error ? err.message : 'Došlo je do greške pri obradi slike.';
-			selectedFileName = originalFile.name;
-			previewUrl = URL.createObjectURL(originalFile);
+			syncFileInput();
+		} catch (err) {
+			console.error('Greška pri obradi slika:', err);
+			fileError = err instanceof Error ? err.message : 'Došlo je do greške pri obradi slika.';
 		} finally {
 			isCompressing = false;
+			compressionProgress = '';
+			target.value = '';
 		}
 	}
 
-	function handleClearFile() {
-		selectedFileName = '';
-		fileError = null;
-		if (previewUrl && previewUrl.startsWith('blob:')) {
-			URL.revokeObjectURL(previewUrl);
+	function handleAddManualUrl() {
+		const trimmed = manualUrl.trim();
+		if (!trimmed) return;
+
+		imageList.push({
+			id: `manual-${Date.now()}`,
+			url: trimmed,
+			isExisting: true
+		});
+		manualUrl = '';
+	}
+
+	function setPrimaryImage(index: number) {
+		if (index === 0 || index >= imageList.length) return;
+		const selected = imageList[index];
+		const updated = [selected, ...imageList.filter((_, i) => i !== index)];
+		imageList = updated;
+		syncFileInput();
+	}
+
+	function removeImage(index: number) {
+		const item = imageList[index];
+		if (!item.isExisting && item.url.startsWith('blob:')) {
+			URL.revokeObjectURL(item.url);
 		}
-		previewUrl = product?.imageUrl ?? null;
-		manualUrl = product?.imageUrl ?? '';
-		const fileInput = document.getElementById('admin-product-file-input') as HTMLInputElement;
-		if (fileInput) fileInput.value = '';
+		imageList = imageList.filter((_, i) => i !== index);
+		syncFileInput();
 	}
 </script>
+
+<!-- Hidden form fields that automatically serialize the multi-image payload -->
+<input type="hidden" name="existingImages" value={existingImagesJson} />
+<input type="hidden" name="imageUrl" value={primaryImageUrl} />
+<input type="hidden" name="hasDualSide" value={hasDualSide ? 'true' : 'false'} />
+<input id="admin-product-files-sync" type="file" multiple name="imageFiles" class="hidden" />
 
 <div class="rounded-2xl border border-[#d6d1c8] bg-white p-4 sm:p-8 shadow-xs">
 	<div class="grid gap-5 sm:gap-6 sm:grid-cols-2">
@@ -159,85 +238,61 @@
 		<div class="grid gap-4 sm:col-span-2 sm:grid-cols-2">
 			<label class="block">
 				<span class="text-sm font-bold text-[#1b1c1a]">Prodajna cijena (KM)</span>
-				<div class="relative mt-2">
-					<input
-						class="h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 pr-12 text-sm font-bold text-[#061b0e] outline-none transition focus:border-[#1b3022] focus:bg-white"
-						name="price"
-						inputmode="decimal"
-						placeholder="45.00"
-						bind:value={priceInput}
-						required
-					/>
-					<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]"
-						>KM</span
-					>
-				</div>
+				<input
+					class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-base sm:text-sm font-bold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
+					name="price"
+					type="text"
+					inputmode="decimal"
+					placeholder="45.00"
+					bind:value={priceInput}
+					required
+				/>
 				<span class="mt-1 block text-[11px] text-[#5b5f60]"
-					>Aktivna cijena po kojoj kupac naručuje artikal.</span
+					>Cijena koju kupac plaća po jedinici mjere.</span
 				>
 			</label>
 
 			<label class="block">
 				<div class="flex items-center justify-between">
-					<span class="text-sm font-bold text-[#1b1c1a]">Stara / Redovna cijena (KM)</span>
-					<span class="text-[11px] font-medium text-[#737973]">Opcionalno</span>
-				</div>
-				<div class="relative mt-2">
-					<input
-						class="h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 pr-12 text-sm font-bold text-[#061b0e] outline-none transition focus:border-[#1b3022] focus:bg-white"
-						name="originalPrice"
-						inputmode="decimal"
-						placeholder="npr. 55.00"
-						bind:value={originalPriceInput}
-					/>
-					<span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#5b5f60]"
-						>KM</span
+					<span class="text-sm font-bold text-[#1b1c1a]">Stara / precrtana cijena (opcionalno)</span
 					>
+					{#if discountPercent}
+						<span
+							class="rounded-md bg-[#ba1a1a] px-2 py-0.5 text-[11px] font-black text-white uppercase tracking-wider shadow-xs"
+						>
+							-{discountPercent}% POPUST
+						</span>
+					{/if}
 				</div>
-				{#if discountPercent}
-					<span
-						class="mt-1.5 inline-flex items-center gap-1.5 rounded-md bg-[#ba1a1a]/10 px-2.5 py-1 text-xs font-bold text-[#ba1a1a]"
-					>
-						🔥 Akcija aktivna: -{discountPercent}% popusta za kupca
-					</span>
-				{:else}
-					<span class="mt-1 block text-[11px] text-[#5b5f60]">
-						Unesite višu cijenu ukoliko želite da stara cijena bude precrtana.
-					</span>
-				{/if}
+				<input
+					class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-base sm:text-sm font-semibold text-[#5b5f60] outline-none transition focus:border-[#1b3022] focus:bg-white"
+					name="originalPrice"
+					type="text"
+					inputmode="decimal"
+					placeholder="55.00"
+					bind:value={originalPriceInput}
+				/>
+				<span class="mt-1 block text-[11px] text-[#5b5f60]">
+					Ako popunite, proizvod dobija crvenu oznaku "Akcija" sa izračunatim procentom.
+				</span>
 			</label>
 		</div>
 
-		<!-- 3. Kategorija -->
+		<!-- 3. Jedinica mjere -->
 		<label class="block">
-			<div class="flex items-center justify-between">
-				<span class="text-sm font-bold text-[#1b1c1a]">Kategorija</span>
-				<a
-					href={resolve('/admin/categories')}
-					target="_blank"
-					class="text-[11px] font-semibold text-[#1b3022] hover:underline"
-				>
-					+ Upravljanje kategorijama
-				</a>
-			</div>
-			<select
-				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white cursor-pointer"
-				name="categoryId"
-			>
-				{#each availableCategories as option (option.value)}
-					<option
-						value={option.value}
-						selected={(product?.categoryId ?? availableCategories[0]?.value) === option.value}
-					>
-						{option.label}
-					</option>
-				{/each}
-			</select>
+			<span class="text-sm font-bold text-[#1b1c1a]">Tekst jedinice mjere</span>
+			<input
+				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
+				name="unit"
+				placeholder="m2 ili daska 4m (0.56m2)"
+				value={product?.unit ?? 'm2'}
+				required
+			/>
 		</label>
 
-		<!-- 4. Jedinica tip -->
+		<!-- 4. Tip jedinice -->
 		<label class="block">
-			<span class="text-sm font-bold text-[#1b1c1a]">Tip obračuna jedinice</span>
+			<span class="text-sm font-bold text-[#1b1c1a]">Tip za kalkulator</span>
 			<select
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white cursor-pointer"
 				name="unitType"
@@ -250,26 +305,29 @@
 			</select>
 		</label>
 
-		<!-- 5. Jedinica prikaz -->
+		<!-- 5. Kategorija -->
 		<label class="block">
-			<span class="text-sm font-bold text-[#1b1c1a]">Prikaz jedinice (tekst)</span>
-			<input
-				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
-				name="unit"
-				placeholder="m2, kom, vreća 25 kg..."
-				value={product?.unit ?? 'm2'}
-				required
-			/>
+			<span class="text-sm font-bold text-[#1b1c1a]">Kategorija</span>
+			<select
+				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white cursor-pointer"
+				name="categoryId"
+			>
+				{#each availableCategories as option (option.value)}
+					<option value={option.value} selected={(product?.categoryId ?? 'wpc') === option.value}>
+						{option.label}
+					</option>
+				{/each}
+			</select>
 		</label>
 
-		<!-- 6. Oznaka / Tag -->
+		<!-- 6. Značka / Tag -->
 		<label class="block">
-			<span class="text-sm font-bold text-[#1b1c1a]">Oznaka bedža (Tag)</span>
+			<span class="text-sm font-bold text-[#1b1c1a]">Istaknuta značka (Tag)</span>
 			<input
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
 				name="tag"
-				placeholder="Premium, Novo, Akcija..."
-				value={product?.tag ?? 'Novo'}
+				placeholder="npr. Premium 3D, Najprodavanije, WPC Terasa"
+				value={product?.tag ?? 'WPC Sistem'}
 				required
 			/>
 		</label>
@@ -292,9 +350,9 @@
 			</select>
 		</label>
 
-		<!-- 8. Zaliha broj -->
+		<!-- 8. Količina na stanju -->
 		<label class="block">
-			<span class="text-sm font-bold text-[#1b1c1a]">Stanje zalihe (broj)</span>
+			<span class="text-sm font-bold text-[#1b1c1a]">Tačna količina na stanju (broj)</span>
 			<input
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
 				name="stockQuantity"
@@ -307,12 +365,12 @@
 
 		<!-- 9. Zaliha prikaz -->
 		<label class="block">
-			<span class="text-sm font-bold text-[#1b1c1a]">Prikaz zalihe (tekst za admin)</span>
+			<span class="text-sm font-bold text-[#1b1c1a]">Prikaz zalihe (tekst za kupce)</span>
 			<input
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
 				name="stockLabel"
-				placeholder="100 m2 na stanju"
-				value={product?.stockLabel ?? 'Dostupno na skladištu'}
+				placeholder="Dostupno odmah na skladištu"
+				value={product?.stockLabel ?? 'Dostupno odmah na skladištu'}
 				required
 			/>
 		</label>
@@ -335,7 +393,7 @@
 		<!-- 11. Sortiranje i Aktivnost -->
 		<div class="grid grid-cols-2 gap-3">
 			<label class="block">
-				<span class="text-sm font-bold text-[#1b1c1a]">Redoslijed</span>
+				<span class="text-sm font-bold text-[#1b1c1a]">Redoslijed prikaza</span>
 				<input
 					class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
 					name="sortOrder"
@@ -356,43 +414,84 @@
 			</label>
 		</div>
 
-		<!-- 12. FOTOGRAFIJA UPLOAD & PREVIEW (Visual Upload Dropzone) -->
+		<!-- 12. DVOSTRANI DIZAJN (2-u-1) TEHNOLOGIJA SWITCH -->
 		<div
-			class="sm:col-span-2 rounded-2xl border-2 border-dashed border-[#c3c8c1] bg-[#fbf9f6] p-5 sm:p-6 transition hover:border-[#1b3022]/60"
+			class="sm:col-span-2 rounded-2xl border-2 transition-all p-4 sm:p-5"
+			class:border-[#1b3022]={hasDualSide}
+			class:bg-[#f3f7f4]={hasDualSide}
+			class:border-[#d6d1c8]={!hasDualSide}
+			class:bg-[#fbf9f6]={!hasDualSide}
 		>
-			<div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-				<!-- Live preview container -->
-				<div
-					class="relative grid size-28 shrink-0 place-items-center overflow-hidden rounded-xl border border-[#c3c8c1] bg-white shadow-xs"
-				>
-					{#if previewUrl}
-						<img src={previewUrl} alt="Pregled artikla" class="h-full w-full object-cover" />
-					{:else}
-						<div class="flex flex-col items-center justify-center text-[#8a8f8a] p-2 text-center">
-							<ImageIcon class="size-8" />
-							<span class="text-[10px] mt-1 font-medium">Nema slike</span>
-						</div>
-					{/if}
-
-					{#if isCompressing}
-						<div
-							class="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-[2px]"
+			<div class="flex items-start justify-between gap-4">
+				<div class="space-y-1.5">
+					<div class="flex items-center gap-2 flex-wrap">
+						<span
+							class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white"
+							class:bg-[#1b3022]={hasDualSide}
+							class:bg-[#737973]={!hasDualSide}
 						>
-							<Loader2 class="size-6 animate-spin text-[#1b3022]" />
+							<Layers class="size-3" />
+							<span>2-u-1 Tehnologija</span>
+						</span>
+						<span class="text-base font-bold text-[#1b1c1a]"
+							>Dvostrani dizajn (Dva lica savršenstva)</span
+						>
+					</div>
+					<p class="text-xs sm:text-sm text-[#434843] leading-relaxed max-w-3xl">
+						Uključite ukoliko ova daska posjeduje <strong>dva funkcionalna lica</strong> (npr. 3D
+						reljefna tekstura drveta s jedne strane i moderne ripne s druge). U webshopu će na prvoj
+						kartici u carouselu biti prikazan <strong>atraktivan split-prikaz oba lica</strong> sa jasnim
+						oznakama ("Lice A: 3D Tekstura" i "Lice B: Klasične ripne").
+					</p>
+					{#if hasDualSide}
+						<div class="mt-2 flex items-center gap-2 text-xs font-semibold text-[#1b3022]">
+							<span class="size-2 rounded-full bg-[#1b3022] animate-pulse"></span>
+							<span
+								>Savjet: Prva slika ispod predstavlja <strong>Lice A</strong>, a druga slika
+								<strong>Lice B</strong> za split-karticu.</span
+							>
 						</div>
 					{/if}
 				</div>
 
-				<!-- Upload actions -->
-				<div class="flex-1 min-w-0">
-					<span class="block text-sm font-bold text-[#1b1c1a]"
-						>Fotografija proizvoda (Odaberite sa računara ili mobitela)</span
-					>
-					<p class="mt-1 text-xs text-[#5b5f60]">
-						Podržani formati: JPG, PNG, WEBP. Slika se automatski optimizuje i postavlja na webshop.
-					</p>
+				<label class="relative inline-flex cursor-pointer items-center shrink-0 pt-1">
+					<input
+						type="checkbox"
+						class="peer sr-only"
+						checked={hasDualSide}
+						onchange={(e) => (hasDualSide = (e.target as HTMLInputElement).checked)}
+					/>
+					<div
+						class="h-7 w-12 rounded-full bg-[#c3c8c1] transition-colors peer-checked:bg-[#1b3022] after:absolute after:top-[6px] after:left-[3px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-all after:content-[''] peer-checked:after:translate-x-5"
+					></div>
+				</label>
+			</div>
+		</div>
 
-					<div class="mt-3 flex flex-wrap items-center gap-3">
+		<!-- 13. MULTI-IMAGE UPLOAD ZONE & GALLERY GRID -->
+		<div
+			class="sm:col-span-2 rounded-2xl border-2 border-dashed border-[#c3c8c1] bg-[#fbf9f6] p-5 sm:p-6 transition hover:border-[#1b3022]/60"
+		>
+			<div class="flex flex-col gap-4">
+				<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+					<div>
+						<div class="flex items-center gap-2">
+							<span class="text-base font-bold text-[#1b1c1a]"
+								>Galerija slika proizvoda ({imageList.length})</span
+							>
+							<span
+								class="rounded-full bg-[#efeeeb] px-2 py-0.5 text-[11px] font-semibold text-[#434843]"
+							>
+								Podržan Carousel & Slideshow
+							</span>
+						</div>
+						<p class="mt-1 text-xs text-[#5b5f60]">
+							Odaberite jednu ili više fotografija. Slike se automatski optimizuju u WebP format
+							visokih performansi.
+						</p>
+					</div>
+
+					<div class="flex items-center gap-2">
 						<label
 							class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#1b3022] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#061b0e] active:scale-95"
 							class:opacity-60={isCompressing}
@@ -400,66 +499,140 @@
 						>
 							{#if isCompressing}
 								<Loader2 class="size-4 animate-spin" />
-								<span>Optimizujem sliku...</span>
+								<span>{compressionProgress || 'Optimizujem...'}</span>
 							{:else}
-								<Upload class="size-4" />
-								<span>{selectedFileName ? 'Promijeni sliku' : 'Odaberi sliku'}</span>
+								<Plus class="size-4" />
+								<span>Dodaj slike sa uređaja</span>
 							{/if}
 							<input
-								id="admin-product-file-input"
 								type="file"
-								name="imageFile"
+								multiple
 								accept="image/jpeg,image/png,image/webp,image/jpg"
 								class="hidden"
 								disabled={isCompressing}
-								onchange={handleFileChange}
+								onchange={handleFilesSelected}
 							/>
 						</label>
+					</div>
+				</div>
 
-						{#if selectedFileName && !isCompressing}
+				{#if fileError}
+					<div
+						class="flex items-center gap-2 rounded-xl border border-[#f1b9b9] bg-[#fff5f5] px-3.5 py-2 text-xs font-semibold text-[#ba1a1a]"
+					>
+						<AlertCircle class="size-4 shrink-0" />
+						<span>{fileError}</span>
+					</div>
+				{/if}
+
+				<!-- Images Grid -->
+				{#if imageList.length > 0}
+					<div class="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+						{#each imageList as img, index (img.id)}
 							<div
-								class="inline-flex items-center gap-2 rounded-xl border border-[#d0e9d4] bg-[#f2fbf3] px-3 py-2 text-xs font-bold text-[#1b5e20]"
+								class="group relative aspect-square overflow-hidden rounded-xl border-2 bg-white shadow-xs transition-all"
+								class:border-[#1b3022]={index === 0}
+								class:border-[#d6d1c8]={index !== 0}
 							>
-								<Check class="size-3.5" />
-								<span class="truncate max-w-50">{selectedFileName}</span>
-								<button
-									type="button"
-									onclick={handleClearFile}
-									class="text-[#5b5f60] hover:text-red-600 transition"
-									aria-label="Ukloni odabranu sliku"
+								<img
+									src={img.url}
+									alt={`Slika ${index + 1}`}
+									class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+								/>
+
+								<!-- Top Badges -->
+								<div
+									class="absolute top-1.5 left-1.5 right-1.5 flex items-center justify-between gap-1"
 								>
-									<X class="size-3.5" />
-								</button>
+									{#if index === 0}
+										<span
+											class="inline-flex items-center gap-1 rounded-full bg-[#1b3022] px-2 py-0.5 text-[10px] font-black text-white shadow-sm"
+										>
+											<Star class="size-2.5 fill-amber-400 text-amber-400" />
+											<span>Glavna / Cover</span>
+										</span>
+									{:else if hasDualSide && index === 1}
+										<span
+											class="inline-flex items-center gap-1 rounded-full bg-[#2e5939] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm"
+										>
+											<span>Lice B (Split)</span>
+										</span>
+									{:else}
+										<span
+											class="rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur-xs"
+										>
+											#{index + 1}
+										</span>
+									{/if}
+
+									<!-- Delete button -->
+									<button
+										type="button"
+										onclick={() => removeImage(index)}
+										class="grid size-6 place-items-center rounded-full bg-black/70 text-white transition hover:bg-red-600 cursor-pointer shadow-sm"
+										aria-label="Ukloni sliku"
+									>
+										<X class="size-3.5" />
+									</button>
+								</div>
+
+								<!-- Bottom Action Overlay -->
+								{#if index !== 0}
+									<div
+										class="absolute inset-x-0 bottom-0 p-1.5 opacity-0 transition group-hover:opacity-100 bg-gradient-to-t from-black/80 to-transparent"
+									>
+										<button
+											type="button"
+											onclick={() => setPrimaryImage(index)}
+											class="w-full rounded-md bg-white/90 py-1 text-[10px] font-bold text-[#1b1c1a] transition hover:bg-white cursor-pointer shadow-xs"
+										>
+											Postavi kao glavnu
+										</button>
+									</div>
+								{/if}
 							</div>
-						{/if}
+						{/each}
 					</div>
-
-					{#if fileError}
-						<div
-							class="mt-2.5 flex items-center gap-2 rounded-xl border border-[#f1b9b9] bg-[#fff5f5] px-3.5 py-2 text-xs font-semibold text-[#ba1a1a]"
-						>
-							<AlertCircle class="size-4 shrink-0" />
-							<span>{fileError}</span>
-						</div>
-					{/if}
-
-					<!-- Direct URL input (opcionalno) -->
-					<div class="mt-3">
-						<input
-							type="text"
-							name="imageUrl"
-							bind:value={manualUrl}
-							placeholder="Ili zalijepite direktan URL slike (opcionalno)"
-							class="h-9 w-full rounded-lg border border-[#c3c8c1] bg-white px-3 text-xs text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
-						/>
+				{:else}
+					<div
+						class="flex flex-col items-center justify-center rounded-xl border border-[#e3e2e0] bg-white/60 py-8 text-center"
+					>
+						<ImageIcon class="size-10 text-[#8a8f8a]" />
+						<p class="mt-2 text-xs font-semibold text-[#434843]">Nema dodanih slika</p>
+						<p class="text-[11px] text-[#737973]">
+							Dodajte jednu ili više slika klikom na dugme iznad.
+						</p>
 					</div>
+				{/if}
+
+				<!-- Direct URL input helper -->
+				<div class="mt-2 flex items-center gap-2 border-t border-[#e3e2e0] pt-3">
+					<input
+						type="text"
+						bind:value={manualUrl}
+						placeholder="Ili unesite direktan URL slike (https://...)"
+						class="h-9 flex-1 rounded-lg border border-[#c3c8c1] bg-white px-3 text-xs text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
+						onkeydown={(e) => {
+							if (e.key === 'Enter') {
+								e.preventDefault();
+								handleAddManualUrl();
+							}
+						}}
+					/>
+					<button
+						type="button"
+						onclick={handleAddManualUrl}
+						class="inline-flex h-9 items-center justify-center rounded-lg border border-[#c3c8c1] bg-white px-3 text-xs font-bold text-[#1b1c1a] transition hover:bg-[#efeeeb] cursor-pointer"
+					>
+						Dodaj URL
+					</button>
 				</div>
 			</div>
 		</div>
 
-		<!-- 13. Opis -->
+		<!-- 14. Opis -->
 		<label class="block sm:col-span-2">
-			<span class="text-sm font-bold text-[#1b1c1a]">Opis proizvoda i karakteristike</span>
+			<span class="text-sm font-bold text-[#1b1c1a]">Opis proizvoda i tehničke karakteristike</span>
 			<textarea
 				class="mt-2 min-h-28 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 py-3 text-sm font-medium leading-relaxed text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
 				name="description"
@@ -478,7 +651,7 @@
 		>
 			{#if isCompressing}
 				<Loader2 class="size-4 animate-spin" />
-				<span>Optimizujem sliku...</span>
+				<span>{compressionProgress || 'Optimizujem sliku...'}</span>
 			{:else}
 				<span>{submitLabel}</span>
 			{/if}

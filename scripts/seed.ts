@@ -23,7 +23,8 @@ const productSeed = [
 		id: 'wpc-decking-premium-antracit',
 		categoryId: 'wpc',
 		name: 'WPC Decking Premium Antracit 4m',
-		description: 'Visokokvalitetne kompozitne daske za terase i bazene sa protukliznom strukturom i UV zaštitom.',
+		description:
+			'Visokokvalitetne kompozitne daske za terase i bazene sa protukliznom strukturom i UV zaštitom.',
 		priceCents: 4800,
 		unit: 'm2',
 		unitType: 'm2',
@@ -39,7 +40,8 @@ const productSeed = [
 		id: 'wpc-decking-natur-teak',
 		categoryId: 'wpc',
 		name: 'WPC Decking Natur Teak 4m',
-		description: 'Topla nijansa tikovine, otporna na vremenske uticaje, vlagu i habanje bez potrebe za lakiranjem.',
+		description:
+			'Topla nijansa tikovine, otporna na vremenske uticaje, vlagu i habanje bez potrebe za lakiranjem.',
 		priceCents: 4800,
 		unit: 'm2',
 		unitType: 'm2',
@@ -55,7 +57,8 @@ const productSeed = [
 		id: 'lvt-akusticni-vinil-klik-hrast',
 		categoryId: 'lvt',
 		name: 'LVT Akustični Vinil Klik Hrast 5mm',
-		description: 'Akustični LVT vinil sa integrisanom zvučnom podlogom i patentiranim klik sistemom za brzu ugradnju.',
+		description:
+			'Akustični LVT vinil sa integrisanom zvučnom podlogom i patentiranim klik sistemom za brzu ugradnju.',
 		priceCents: 4500,
 		unit: 'm2',
 		unitType: 'm2',
@@ -71,7 +74,8 @@ const productSeed = [
 		id: 'spc-vinil-klik-kamen-sivi',
 		categoryId: 'spc',
 		name: 'SPC Vinil Klik Kamen Sivi 5mm',
-		description: '100% vodootporan SPC pod sa kamenim dekorom i visokom klasom otpornosti za stambene i poslovne prostore.',
+		description:
+			'100% vodootporan SPC pod sa kamenim dekorom i visokom klasom otpornosti za stambene i poslovne prostore.',
 		priceCents: 4500,
 		unit: 'm2',
 		unitType: 'm2',
@@ -87,7 +91,8 @@ const productSeed = [
 		id: 'tekstilne-modularne-ploce-antracit',
 		categoryId: 'tekstilne-ploce',
 		name: 'Tekstilne modularne ploče 50x50 cm',
-		description: 'Izdržljive tepih kocke za kancelarije i poslovne prostore sa jednostavnom zamjenom oštećenih dijelova.',
+		description:
+			'Izdržljive tepih kocke za kancelarije i poslovne prostore sa jednostavnom zamjenom oštećenih dijelova.',
 		priceCents: 3200,
 		unit: 'm2',
 		unitType: 'm2',
