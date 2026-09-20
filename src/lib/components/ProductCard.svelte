@@ -171,13 +171,13 @@
 
 <article
 	bind:this={cardElement}
-	class="group flex flex-col justify-between overflow-hidden rounded-2xl border border-[#c3c8c1] bg-white transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(27,28,26,0.08)] hover:border-[#1b3022]/40"
+	class="group flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-[#c3c8c1] bg-white transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(27,28,26,0.08)] hover:border-[#1b3022]/40"
 	in:fly={{ y: 10, duration: 180 }}
 	out:fade={{ duration: 120 }}
 	onmouseenter={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
 >
-	<div>
+	<div class="flex flex-1 flex-col">
 		<!-- Full-width Image Area with Carousel & Overlapped Badges -->
 		<div
 			class="relative aspect-4/3 w-full overflow-hidden bg-[#f5f3f0] cursor-pointer select-none"
@@ -355,15 +355,15 @@
 		</div>
 
 		<!-- Card Content -->
-		<div class="p-4 sm:p-5 pb-2">
-			<div class="flex items-start justify-between gap-2">
-				<h2 class="text-lg font-semibold leading-snug text-[#1b1c1a] group-hover:text-[#061b0e]">
+		<div class="flex flex-1 flex-col justify-between p-4 sm:p-5 pb-2">
+			<div>
+				<h2 class="text-lg font-semibold leading-snug text-[#1b1c1a] group-hover:text-[#061b0e] line-clamp-2 min-h-[3.25rem]">
 					{product.name}
 				</h2>
+				<p class="mt-2 min-h-11 text-xs leading-5 text-[#434843] line-clamp-2">
+					{product.description}
+				</p>
 			</div>
-			<p class="mt-2 min-h-11 text-xs leading-5 text-[#434843] line-clamp-2">
-				{product.description}
-			</p>
 		</div>
 	</div>
 

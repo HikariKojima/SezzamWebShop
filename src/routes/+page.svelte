@@ -376,9 +376,9 @@
 		/>
 
 		{#if sortedProducts.length > 0}
-			<div class="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+			<div class="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-4 items-stretch">
 				{#each sortedProducts as product (product.id)}
-					<div id={`product-${product.id}`} animate:flip={{ duration: 220 }}>
+					<div id={`product-${product.id}`} class="h-full flex flex-col" animate:flip={{ duration: 220 }}>
 						<ProductCard
 							{product}
 							quantity={getQuantity(product.id)}
