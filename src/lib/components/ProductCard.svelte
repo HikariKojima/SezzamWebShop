@@ -238,6 +238,7 @@
 								alt={`${product.name} - Lice A`}
 								class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 								loading="lazy"
+								decoding="async"
 							/>
 							<div
 								class="absolute inset-x-0 bottom-8 bg-linear-to-t from-black/80 via-black/30 to-transparent p-1.5 text-center"
@@ -257,6 +258,7 @@
 								alt={`${product.name} - Lice B`}
 								class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 								loading="lazy"
+								decoding="async"
 							/>
 							<div
 								class="absolute inset-x-0 bottom-8 bg-linear-to-t from-black/80 via-black/30 to-transparent p-1.5 text-center"
@@ -287,6 +289,7 @@
 						alt={product.name}
 						class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 						loading="lazy"
+						decoding="async"
 					/>
 				{/if}
 			{:else}
@@ -357,7 +360,7 @@
 		<!-- Card Content -->
 		<div class="flex flex-1 flex-col justify-between p-4 sm:p-5 pb-2">
 			<div>
-				<h2 class="text-lg font-semibold leading-snug text-[#1b1c1a] group-hover:text-[#061b0e] line-clamp-2 min-h-[3.25rem]">
+				<h2 class="text-lg font-semibold leading-snug text-[#1b1c1a] group-hover:text-[#061b0e] line-clamp-2 min-h-13">
 					{product.name}
 				</h2>
 				<p class="mt-2 min-h-11 text-xs leading-5 text-[#434843] line-clamp-2">

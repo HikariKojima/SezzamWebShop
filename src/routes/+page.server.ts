@@ -23,8 +23,12 @@ const MAX_ITEM_QUANTITY = 10_000;
 import { products as fallbackProducts } from '$lib/data/products';
 import { getSiteSettings } from '$lib/server/siteSettings';
 import { defaultSiteSettings } from '$lib/types/settings';
+import { sendInquiryNotification } from '$lib/server/email';
 
-export async function load() {
+export async function load({ setHeaders }) {
+	setHeaders({
+		'cache-control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600'
+	});
 	try {
 		const rows = await db
 			.select()
@@ -326,6 +330,25 @@ export const actions: Actions = {
 
 			throw error;
 		}
+
+		// Pošalji email obavijest vlasniku (asinhrono, ne blokira završetak narudžbe)
+		sendInquiryNotification({
+			order: {
+				id: order.id,
+				customerName,
+				customerPhone,
+				customerEmail: customerEmail || null,
+				companyName: companyName || null,
+				companyId: companyId || null,
+				companyAddress: companyAddress || null,
+				orderNote: orderNote || null,
+				paymentMethod,
+				subtotalCents
+			},
+			lines: orderLines
+		}).catch((err) => {
+			console.error('Greška pri slanju email obavijesti o narudžbi:', err);
+		});
 
 		return {
 			success: true,

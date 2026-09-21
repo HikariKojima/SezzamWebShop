@@ -63,6 +63,8 @@
 											src="/images/showcase/texture-3d-wood.jpg"
 											alt="3D Tekstura Drveta"
 											class="h-full w-full object-cover"
+											loading="lazy"
+											decoding="async"
 										/>
 									</div>
 									<div>
@@ -84,6 +86,8 @@
 											src="/images/showcase/texture-grooved.jpg"
 											alt="Klasične Linije"
 											class="h-full w-full object-cover"
+											loading="lazy"
+											decoding="async"
 										/>
 									</div>
 									<div>
@@ -102,6 +106,8 @@
 								src="/images/showcase/texture-3d-wood.jpg"
 								alt="3D Tekstura Drveta - Premium Reljef"
 								class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+								loading="lazy"
+								decoding="async"
 							/>
 							<div
 								class="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"
@@ -124,6 +130,8 @@
 								src="/images/showcase/texture-grooved.jpg"
 								alt="Klasične Linije - Moderni Minimalizam"
 								class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+								loading="lazy"
+								decoding="async"
 							/>
 							<div
 								class="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"

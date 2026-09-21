@@ -54,6 +54,9 @@
 					src={heroImage}
 					alt="Sezzam WPC Decking"
 					class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+					fetchpriority="high"
+					decoding="async"
+					loading="eager"
 				/>
 			{:else}
 				<div class="material-stack" aria-hidden="true">
