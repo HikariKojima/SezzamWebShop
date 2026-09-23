@@ -78,9 +78,20 @@
 		return price.toFixed(2).replace('.', ',');
 	}
 
+	let hasDiscount = $derived(
+		Boolean(product?.originalPrice && product.originalPrice !== product.price)
+	);
+	let displayOldPrice = $derived(
+		hasDiscount && product ? Math.max(product.originalPrice ?? 0, product.price) : null
+	);
+	let displayNewPrice = $derived(
+		hasDiscount && product
+			? Math.min(product.originalPrice ?? product.price, product.price)
+			: (product?.price ?? 0)
+	);
 	let discountPercent = $derived(
-		product?.originalPrice && product.originalPrice > product.price
-			? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+		hasDiscount && displayOldPrice && displayOldPrice > displayNewPrice
+			? Math.round(((displayOldPrice - displayNewPrice) / displayOldPrice) * 100)
 			: null
 	);
 
@@ -252,9 +263,6 @@
 									{product.tag}
 								</span>
 							{/if}
-							<span class="text-xs font-semibold text-[#5b5f60]">
-								{product.stock}
-							</span>
 						</div>
 
 						<h2 class="mt-2 text-xl sm:text-2xl font-bold text-[#061b0e]">
@@ -263,12 +271,12 @@
 
 						<!-- Price Display -->
 						<div class="mt-3 flex items-baseline gap-2">
-							{#if product.originalPrice && product.originalPrice > product.price}
+							{#if hasDiscount && displayOldPrice}
 								<span class="text-sm font-semibold text-[#737973] line-through">
-									{formatPrice(product.originalPrice)} KM
+									{formatPrice(displayOldPrice)} KM
 								</span>
 								<span class="text-2xl sm:text-3xl font-black text-[#ba1a1a]">
-									{formatPrice(product.price)} <span class="text-lg">KM</span>
+									{formatPrice(displayNewPrice)} <span class="text-lg">KM</span>
 								</span>
 							{:else}
 								<span class="text-2xl sm:text-3xl font-bold text-[#061b0e]">

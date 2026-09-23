@@ -40,6 +40,6 @@
 	</p>
 {/if}
 
-<form method="POST" enctype="multipart/form-data" class="mt-6">
+<form method="POST" enctype="multipart/form-data" class="mt-6 w-full max-w-full min-w-0">
 	<AdminProductForm product={data.product} categories={data.categories} />
 </form>

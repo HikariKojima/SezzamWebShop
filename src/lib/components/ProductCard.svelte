@@ -62,39 +62,18 @@
 		return price.toFixed(2).replace('.', ',');
 	}
 
-	function getAvailabilityInfo(prod: Product) {
-		if (prod.availability === 'in-stock') {
-			return {
-				label: 'Dostupno odmah',
-				dotClass: 'bg-emerald-500',
-				textClass: 'text-emerald-800 bg-emerald-50 border-emerald-200'
-			};
-		}
-		if (prod.availability === 'low-stock') {
-			return {
-				label: 'Niska zaliha',
-				dotClass: 'bg-amber-500',
-				textClass: 'text-amber-800 bg-amber-50 border-amber-200'
-			};
-		}
-		if (prod.availability === 'by-order') {
-			return {
-				label: 'Po narudžbi',
-				dotClass: 'bg-sky-500',
-				textClass: 'text-sky-800 bg-sky-50 border-sky-200'
-			};
-		}
-		return {
-			label: 'Trenutno rasprodano',
-			dotClass: 'bg-rose-500',
-			textClass: 'text-rose-800 bg-rose-50 border-rose-200'
-		};
-	}
-
-	let avail = $derived(getAvailabilityInfo(product));
+	let hasDiscount = $derived(
+		Boolean(product.originalPrice && product.originalPrice !== product.price)
+	);
+	let displayOldPrice = $derived(
+		hasDiscount ? Math.max(product.originalPrice ?? 0, product.price) : null
+	);
+	let displayNewPrice = $derived(
+		hasDiscount ? Math.min(product.originalPrice ?? product.price, product.price) : product.price
+	);
 	let discountPercent = $derived(
-		product.originalPrice && product.originalPrice > product.price
-			? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+		hasDiscount && displayOldPrice && displayOldPrice > displayNewPrice
+			? Math.round(((displayOldPrice - displayNewPrice) / displayOldPrice) * 100)
 			: null
 	);
 	let hasCalculator = $derived(
@@ -330,16 +309,6 @@
 				</button>
 			{/if}
 
-			<!-- Overlapped availability badge -->
-			<div class="absolute bottom-2.5 right-2.5 z-20">
-				<span
-					class={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold shadow-xs backdrop-blur-md ${avail.textClass}`}
-				>
-					<span class={`size-1.5 rounded-full ${avail.dotClass}`}></span>
-					<span>{avail.label}</span>
-				</span>
-			</div>
-
 			<!-- Carousel bottom dot indicators -->
 			{#if slides.length > 1}
 				<div class="absolute bottom-2.5 left-3 z-20 flex items-center gap-1.5">
@@ -386,12 +355,12 @@
 
 		<div class="flex items-end justify-between gap-4">
 			<div>
-				{#if product.originalPrice && product.originalPrice > product.price}
+				{#if hasDiscount && displayOldPrice}
 					<p class="text-xs font-semibold text-[#737973] line-through">
-						{formatPrice(product.originalPrice)} KM
+						{formatPrice(displayOldPrice)} KM
 					</p>
 					<p class="text-2xl font-black text-[#ba1a1a] leading-tight">
-						{formatPrice(product.price)} <span class="text-lg font-bold">KM</span>
+						{formatPrice(displayNewPrice)} <span class="text-lg font-bold">KM</span>
 					</p>
 				{:else}
 					<p class="text-xl font-bold text-[#061b0e]">{formatPrice(product.price)} KM</p>

@@ -28,6 +28,16 @@
 	function formatPrice(value: number) {
 		return value.toFixed(2).replace('.', ',');
 	}
+
+	function getPriceInfo(product: (typeof data.products)[number]) {
+		const hasDiscount = Boolean(product.originalPrice && product.originalPrice !== product.price);
+		const oldPrice = hasDiscount ? Math.max(product.originalPrice ?? 0, product.price) : null;
+		const newPrice = hasDiscount ? Math.min(product.originalPrice ?? product.price, product.price) : product.price;
+		const discount = hasDiscount && oldPrice && oldPrice > newPrice
+			? Math.round(((oldPrice - newPrice) / oldPrice) * 100)
+			: null;
+		return { hasDiscount, oldPrice, newPrice, discount };
+	}
 </script>
 
 <svelte:head>
@@ -116,6 +126,7 @@
 			</div>
 
 			{#each filteredProducts as product (product.id)}
+				{@const pInfo = getPriceInfo(product)}
 				<article
 					class="grid grid-cols-[1.4fr_0.7fr_0.6fr_0.6fr_180px] gap-4 items-center border-b border-[#e1ddd5] px-5 py-4 last:border-b-0 hover:bg-[#fcfbf9] transition"
 				>
@@ -140,19 +151,19 @@
 					</div>
 
 					<div>
-						{#if product.originalPrice && product.originalPrice > product.price}
+						{#if pInfo.hasDiscount && pInfo.oldPrice}
 							<p class="text-[11px] font-semibold text-[#8a8f8a] line-through">
-								{formatPrice(product.originalPrice)} KM
+								{formatPrice(pInfo.oldPrice)} KM
 							</p>
 							<div class="flex items-center gap-1.5">
-								<p class="text-sm font-black text-[#ba1a1a]">{formatPrice(product.price)} KM</p>
-								<span
-									class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.5 text-[10px] font-extrabold text-[#ba1a1a]"
-								>
-									-{Math.round(
-										((product.originalPrice - product.price) / product.originalPrice) * 100
-									)}%
-								</span>
+								<p class="text-sm font-black text-[#ba1a1a]">{formatPrice(pInfo.newPrice)} KM</p>
+								{#if pInfo.discount}
+									<span
+										class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.5 text-[10px] font-extrabold text-[#ba1a1a]"
+									>
+										-{pInfo.discount}%
+									</span>
+								{/if}
 							</div>
 						{:else}
 							<p class="text-sm font-bold text-[#061b0e]">{formatPrice(product.price)} KM</p>
@@ -214,6 +225,7 @@
 		<!-- Mobile Touch Cards (< lg) -->
 		<div class="lg:hidden flex flex-col gap-3">
 			{#each filteredProducts as product (product.id)}
+				{@const pInfo = getPriceInfo(product)}
 				<article class="rounded-2xl border border-[#d6d1c8] bg-white p-4 shadow-2xs">
 					<!-- Top Row: Thumbnail + Title + Price -->
 					<div class="flex gap-3.5">
@@ -247,20 +259,20 @@
 							</div>
 
 							<div class="mt-1.5 flex flex-wrap items-baseline gap-1.5">
-								{#if product.originalPrice && product.originalPrice > product.price}
+								{#if pInfo.hasDiscount && pInfo.oldPrice}
 									<span class="text-xs font-semibold text-[#8a8f8a] line-through">
-										{formatPrice(product.originalPrice)} KM
+										{formatPrice(pInfo.oldPrice)} KM
 									</span>
 									<span class="text-base font-black text-[#ba1a1a]">
-										{formatPrice(product.price)} KM
+										{formatPrice(pInfo.newPrice)} KM
 									</span>
-									<span
-										class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.2 text-[10px] font-extrabold text-[#ba1a1a]"
-									>
-										-{Math.round(
-											((product.originalPrice - product.price) / product.originalPrice) * 100
-										)}%
-									</span>
+									{#if pInfo.discount}
+										<span
+											class="rounded bg-[#ba1a1a]/10 px-1.5 py-0.2 text-[10px] font-extrabold text-[#ba1a1a]"
+										>
+											-{pInfo.discount}%
+										</span>
+									{/if}
 								{:else}
 									<span class="text-base font-extrabold text-[#061b0e]">
 										{formatPrice(product.price)} KM

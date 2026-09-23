@@ -196,7 +196,7 @@
 		}
 		if (
 			selectedFilters.onlySale &&
-			(!product.originalPrice || product.originalPrice <= product.price)
+			(!product.originalPrice || product.originalPrice === product.price)
 		) {
 			return false;
 		}

@@ -123,9 +123,16 @@ function parseOption<T extends string>(
 export async function parseProductForm(formData: FormData) {
 	const name = parseRequiredText(formData, 'name', 180);
 	const description = parseRequiredText(formData, 'description', 2000);
-	const priceCents = parsePriceCents(formData.get('price'));
+	let priceCents = parsePriceCents(formData.get('price'));
 	const rawOriginalPrice = parsePriceCents(formData.get('originalPrice'));
-	const originalPriceCents = rawOriginalPrice && rawOriginalPrice > 0 ? rawOriginalPrice : null;
+	let originalPriceCents = rawOriginalPrice && rawOriginalPrice > 0 ? rawOriginalPrice : null;
+
+	// Normalize if user entered prices in reverse (e.g. entered discount price in originalPrice field)
+	if (priceCents && originalPriceCents && originalPriceCents < priceCents) {
+		const temp = priceCents;
+		priceCents = originalPriceCents;
+		originalPriceCents = temp;
+	}
 	const unit = parseRequiredText(formData, 'unit', 80);
 	const unitType = parseOption(formData.get('unitType'), unitTypeValues);
 	const categoryId = parseOption(formData.get('categoryId'), categoryValues);

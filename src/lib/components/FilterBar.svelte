@@ -2,7 +2,6 @@
 	import { ArrowUpDown, Check } from '@lucide/svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import type {
-		ProductAvailability,
 		ProductFilters,
 		ProductPriceFilter,
 		ProductSort
@@ -46,13 +45,6 @@
 				]
 	);
 
-	const availabilityOptions: FilterOption<ProductAvailability>[] = [
-		{ value: 'in-stock', label: 'Dostupno odmah' },
-		{ value: 'low-stock', label: 'Niska zaliha' },
-		{ value: 'by-order', label: 'Po narudžbi' },
-		{ value: 'out-of-stock', label: 'Nedostupno' }
-	];
-
 	const sortOptions: FilterOption<ProductSort>[] = [
 		{ value: 'recommended', label: 'Preporučeno' },
 		{ value: 'price-asc', label: 'Cijena: Najniža prvo' },
@@ -65,11 +57,6 @@
 			key: 'category' as OptionFilterKey,
 			label: 'Kategorija',
 			options: categoryOptions
-		},
-		{
-			key: 'availability' as OptionFilterKey,
-			label: 'Dostupnost',
-			options: availabilityOptions
 		}
 	]);
 

@@ -64,6 +64,18 @@
 		return null;
 	});
 
+	let isPriceInverted = $derived.by(() => {
+		const cur = Number(String(priceInput).replace(',', '.'));
+		const orig = Number(String(originalPriceInput).replace(',', '.'));
+		return Number.isFinite(cur) && Number.isFinite(orig) && cur > 0 && orig > 0 && orig < cur;
+	});
+
+	function swapPrices() {
+		const temp = priceInput;
+		priceInput = originalPriceInput;
+		originalPriceInput = temp;
+	}
+
 	let availableCategories = $derived(
 		categories && categories.length > 0
 			? categories.map((c) => ({ value: c.id, label: c.name }))
@@ -220,10 +232,10 @@
 <input type="hidden" name="hasDualSide" value={hasDualSide ? 'true' : 'false'} />
 <input id="admin-product-files-sync" type="file" multiple name="imageFiles" class="hidden" />
 
-<div class="rounded-2xl border border-[#d6d1c8] bg-white p-4 sm:p-8 shadow-xs">
-	<div class="grid gap-5 sm:gap-6 sm:grid-cols-2">
+<div class="w-full max-w-full min-w-0 overflow-hidden rounded-2xl border border-[#d6d1c8] bg-white p-4 sm:p-8 shadow-xs">
+	<div class="grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 min-w-0 w-full">
 		<!-- 1. Naziv -->
-		<label class="block sm:col-span-2">
+		<label class="block sm:col-span-2 min-w-0">
 			<span class="text-sm font-bold text-[#1b1c1a]">Naziv proizvoda</span>
 			<input
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-base sm:text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
@@ -235,9 +247,9 @@
 		</label>
 
 		<!-- 2. Cijena & Stara cijena (Akcija) -->
-		<div class="grid gap-4 sm:col-span-2 sm:grid-cols-2">
-			<label class="block">
-				<span class="text-sm font-bold text-[#1b1c1a]">Prodajna cijena (KM)</span>
+		<div class="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2 min-w-0 w-full">
+			<label class="block min-w-0">
+				<span class="text-sm font-bold text-[#1b1c1a]">Nova / Prodajna cijena (KM)</span>
 				<input
 					class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-base sm:text-sm font-bold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
 					name="price"
@@ -247,15 +259,14 @@
 					bind:value={priceInput}
 					required
 				/>
-				<span class="mt-1 block text-[11px] text-[#5b5f60]"
-					>Cijena koju kupac plaća po jedinici mjere.</span
-				>
+				<span class="mt-1 block text-[11px] text-[#5b5f60]">
+					Cijena koju kupac plaća. Ako je na akciji, ovo je nova snižena cijena (crveno u shopu).
+				</span>
 			</label>
 
-			<label class="block">
+			<label class="block min-w-0">
 				<div class="flex items-center justify-between">
-					<span class="text-sm font-bold text-[#1b1c1a]">Stara / precrtana cijena (opcionalno)</span
-					>
+					<span class="text-sm font-bold text-[#1b1c1a]">Stara / Precrtana cijena (opcionalno)</span>
 					{#if discountPercent}
 						<span
 							class="rounded-md bg-[#ba1a1a] px-2 py-0.5 text-[11px] font-black text-white uppercase tracking-wider shadow-xs"
@@ -273,13 +284,44 @@
 					bind:value={originalPriceInput}
 				/>
 				<span class="mt-1 block text-[11px] text-[#5b5f60]">
-					Ako popunite, proizvod dobija crvenu oznaku "Akcija" sa izračunatim procentom.
+					Redovna cijena prije popusta koja će biti precrtana (mora biti veća od nove cijene).
 				</span>
 			</label>
+
+			{#if isPriceInverted}
+				<div
+					class="sm:col-span-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 shadow-xs"
+				>
+					<div class="flex items-center gap-2">
+						<AlertCircle class="size-4 shrink-0 text-amber-700" />
+						<span>
+							Stara cijena (<strong>{originalPriceInput} KM</strong>) je <strong>manja</strong> od prodajne cijene (<strong>{priceInput} KM</strong>). Da bi popust bio prikazan u shopu, stara cijena mora biti veća.
+						</span>
+					</div>
+					<button
+						type="button"
+						onclick={swapPrices}
+						class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-amber-700 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-amber-800 cursor-pointer"
+					>
+						Zamijeni mjesta cijenama
+					</button>
+				</div>
+			{:else if discountPercent}
+				<div
+					class="sm:col-span-2 flex flex-wrap items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-900 shadow-xs"
+				>
+					<span class="text-emerald-700">Prikaz u shopu:</span>
+					<span class="line-through text-emerald-700/60 font-medium">{originalPriceInput} KM</span>
+					<span class="text-base font-black text-rose-700">→ {priceInput} KM</span>
+					<span class="rounded bg-rose-600 px-2 py-0.5 text-[11px] font-black text-white uppercase tracking-wider">
+						-{discountPercent}% POPUST
+					</span>
+				</div>
+			{/if}
 		</div>
 
 		<!-- 3. Jedinica mjere -->
-		<label class="block">
+		<label class="block min-w-0">
 			<span class="text-sm font-bold text-[#1b1c1a]">Tekst jedinice mjere</span>
 			<input
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
@@ -291,7 +333,7 @@
 		</label>
 
 		<!-- 4. Tip jedinice -->
-		<label class="block">
+		<label class="block min-w-0">
 			<span class="text-sm font-bold text-[#1b1c1a]">Tip za kalkulator</span>
 			<select
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white cursor-pointer"
@@ -306,7 +348,7 @@
 		</label>
 
 		<!-- 5. Kategorija -->
-		<label class="block">
+		<label class="block min-w-0">
 			<span class="text-sm font-bold text-[#1b1c1a]">Kategorija</span>
 			<select
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white cursor-pointer"
@@ -321,7 +363,7 @@
 		</label>
 
 		<!-- 6. Značka / Tag -->
-		<label class="block">
+		<label class="block min-w-0">
 			<span class="text-sm font-bold text-[#1b1c1a]">Istaknuta značka (Tag)</span>
 			<input
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
@@ -333,8 +375,8 @@
 		</label>
 
 		<!-- 7. Dostupnost -->
-		<label class="block">
-			<span class="text-sm font-bold text-[#1b1c1a]">Status dostupnosti</span>
+		<label class="block min-w-0">
+			<span class="text-sm font-bold text-[#1b1c1a]">Interni status dostupnosti (ne prikazuje se kupcima)</span>
 			<select
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white cursor-pointer"
 				name="availability"
@@ -348,10 +390,11 @@
 					</option>
 				{/each}
 			</select>
+			<span class="mt-1 block text-[11px] text-[#5b5f60]">Interni status stanja za narudžbe.</span>
 		</label>
 
 		<!-- 8. Količina na stanju -->
-		<label class="block">
+		<label class="block min-w-0">
 			<span class="text-sm font-bold text-[#1b1c1a]">Tačna količina na stanju (broj)</span>
 			<input
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
@@ -364,19 +407,20 @@
 		</label>
 
 		<!-- 9. Zaliha prikaz -->
-		<label class="block">
-			<span class="text-sm font-bold text-[#1b1c1a]">Prikaz zalihe (tekst za kupce)</span>
+		<label class="block min-w-0">
+			<span class="text-sm font-bold text-[#1b1c1a]">Interna napomena o stanju (ne prikazuje se kupcima)</span>
 			<input
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
 				name="stockLabel"
-				placeholder="Dostupno odmah na skladištu"
-				value={product?.stockLabel ?? 'Dostupno odmah na skladištu'}
+				placeholder="npr. Polica A3, dostupno na skladištu"
+				value={product?.stockLabel ?? 'Dostupno na skladištu'}
 				required
 			/>
+			<span class="mt-1 block text-[11px] text-[#5b5f60]">Služi samo za internu evidenciju administracije i skladišta.</span>
 		</label>
 
 		<!-- 10. Ilustracija fallback -->
-		<label class="block">
+		<label class="block min-w-0">
 			<span class="text-sm font-bold text-[#1b1c1a]">Ilustracija (fallback ako nema slike)</span>
 			<select
 				class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white cursor-pointer"
@@ -391,8 +435,8 @@
 		</label>
 
 		<!-- 11. Sortiranje i Aktivnost -->
-		<div class="grid grid-cols-2 gap-3">
-			<label class="block">
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0 w-full sm:col-span-2">
+			<label class="block min-w-0">
 				<span class="text-sm font-bold text-[#1b1c1a]">Redoslijed prikaza</span>
 				<input
 					class="mt-2 h-11 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 text-sm font-semibold text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"
@@ -403,7 +447,7 @@
 					required
 				/>
 			</label>
-			<label class="flex items-center gap-2.5 pt-7 text-sm font-bold text-[#1b1c1a] cursor-pointer">
+			<label class="flex items-center gap-2.5 pt-2 sm:pt-7 text-sm font-bold text-[#1b1c1a] cursor-pointer min-w-0">
 				<input
 					class="size-5 rounded text-[#1b3022] focus:ring-[#1b3022]"
 					type="checkbox"
@@ -416,14 +460,14 @@
 
 		<!-- 12. DVOSTRANI DIZAJN (2-u-1) TEHNOLOGIJA SWITCH -->
 		<div
-			class="sm:col-span-2 rounded-2xl border-2 transition-all p-4 sm:p-5"
+			class="sm:col-span-2 rounded-2xl border-2 transition-all p-4 sm:p-5 min-w-0 max-w-full w-full"
 			class:border-[#1b3022]={hasDualSide}
 			class:bg-[#f3f7f4]={hasDualSide}
 			class:border-[#d6d1c8]={!hasDualSide}
 			class:bg-[#fbf9f6]={!hasDualSide}
 		>
-			<div class="flex items-start justify-between gap-4">
-				<div class="space-y-1.5">
+			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 min-w-0 w-full">
+				<div class="space-y-1.5 min-w-0">
 					<div class="flex items-center gap-2 flex-wrap">
 						<span
 							class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white"
@@ -462,7 +506,7 @@
 						onchange={(e) => (hasDualSide = (e.target as HTMLInputElement).checked)}
 					/>
 					<div
-						class="h-7 w-12 rounded-full bg-[#c3c8c1] transition-colors peer-checked:bg-[#1b3022] after:absolute after:top-[6px] after:left-[3px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-all after:content-[''] peer-checked:after:translate-x-5"
+						class="h-7 w-12 rounded-full bg-[#c3c8c1] transition-colors peer-checked:bg-[#1b3022] after:absolute after:top-1.5 after:left-0.75 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-all after:content-[''] peer-checked:after:translate-x-5"
 					></div>
 				</label>
 			</div>
@@ -470,7 +514,7 @@
 
 		<!-- 13. MULTI-IMAGE UPLOAD ZONE & GALLERY GRID -->
 		<div
-			class="sm:col-span-2 rounded-2xl border-2 border-dashed border-[#c3c8c1] bg-[#fbf9f6] p-5 sm:p-6 transition hover:border-[#1b3022]/60"
+			class="sm:col-span-2 rounded-2xl border-2 border-dashed border-[#c3c8c1] bg-[#fbf9f6] p-4 sm:p-6 transition hover:border-[#1b3022]/60 min-w-0 max-w-full w-full overflow-hidden"
 		>
 			<div class="flex flex-col gap-4">
 				<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -579,7 +623,7 @@
 								<!-- Bottom Action Overlay -->
 								{#if index !== 0}
 									<div
-										class="absolute inset-x-0 bottom-0 p-1.5 opacity-0 transition group-hover:opacity-100 bg-gradient-to-t from-black/80 to-transparent"
+										class="absolute inset-x-0 bottom-0 p-1.5 opacity-0 transition group-hover:opacity-100 bg-linear-to-t from-black/80 to-transparent"
 									>
 										<button
 											type="button"
@@ -606,12 +650,12 @@
 				{/if}
 
 				<!-- Direct URL input helper -->
-				<div class="mt-2 flex items-center gap-2 border-t border-[#e3e2e0] pt-3">
+				<div class="mt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-t border-[#e3e2e0] pt-3 min-w-0 w-full">
 					<input
 						type="text"
 						bind:value={manualUrl}
 						placeholder="Ili unesite direktan URL slike (https://...)"
-						class="h-9 flex-1 rounded-lg border border-[#c3c8c1] bg-white px-3 text-xs text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
+						class="h-9 min-w-0 flex-1 rounded-lg border border-[#c3c8c1] bg-white px-3 text-xs text-[#1b1c1a] outline-none transition focus:border-[#1b3022]"
 						onkeydown={(e) => {
 							if (e.key === 'Enter') {
 								e.preventDefault();
@@ -622,7 +666,7 @@
 					<button
 						type="button"
 						onclick={handleAddManualUrl}
-						class="inline-flex h-9 items-center justify-center rounded-lg border border-[#c3c8c1] bg-white px-3 text-xs font-bold text-[#1b1c1a] transition hover:bg-[#efeeeb] cursor-pointer"
+						class="inline-flex h-9 shrink-0 items-center justify-center rounded-lg border border-[#c3c8c1] bg-white px-3 text-xs font-bold text-[#1b1c1a] transition hover:bg-[#efeeeb] cursor-pointer"
 					>
 						Dodaj URL
 					</button>
@@ -631,7 +675,7 @@
 		</div>
 
 		<!-- 14. Opis -->
-		<label class="block sm:col-span-2">
+		<label class="block sm:col-span-2 min-w-0 w-full">
 			<span class="text-sm font-bold text-[#1b1c1a]">Opis proizvoda i tehničke karakteristike</span>
 			<textarea
 				class="mt-2 min-h-28 w-full rounded-xl border border-[#c3c8c1] bg-[#fbf9f6] px-3.5 py-3 text-sm font-medium leading-relaxed text-[#1b1c1a] outline-none transition focus:border-[#1b3022] focus:bg-white"

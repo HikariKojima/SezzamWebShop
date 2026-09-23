@@ -32,13 +32,6 @@
 		return price.toFixed(2).replace('.', ',');
 	}
 
-	function getAvailabilityLabel(product: Product) {
-		if (product.availability === 'in-stock') return 'Dostupno';
-		if (product.availability === 'low-stock') return 'Niska zaliha';
-		if (product.availability === 'by-order') return 'Po narudžbi';
-		return 'Nedostupno';
-	}
-
 	function selectSearchResult(productId: string) {
 		searchFocused = false;
 		onSearchResultSelect(productId);
@@ -160,12 +153,12 @@
 											<div class="min-w-0 flex-1">
 												<p class="truncate text-sm font-semibold text-[#061b0e]">{product.name}</p>
 												<p class="mt-0.5 truncate text-xs text-[#5b5f60]">
-													{#if product.originalPrice && product.originalPrice > product.price}
+													{#if product.originalPrice && product.originalPrice !== product.price}
 														<span class="line-through text-[#8a8f8a] mr-1"
-															>{formatPrice(product.originalPrice)} KM</span
+															>{formatPrice(Math.max(product.originalPrice, product.price))} KM</span
 														>
 														<span class="font-bold text-[#ba1a1a]"
-															>{formatPrice(product.price)} KM</span
+															>{formatPrice(Math.min(product.originalPrice, product.price))} KM</span
 														>
 													{:else}
 														<span>{formatPrice(product.price)} KM</span>
@@ -173,11 +166,6 @@
 													<span> / {product.unit}</span>
 												</p>
 											</div>
-											<span
-												class="rounded-md border border-[#c3c8c1] bg-[#fbf9f6] px-2 py-0.5 text-xs font-semibold text-[#434843]"
-											>
-												{getAvailabilityLabel(product)}
-											</span>
 										</Command.Item>
 									{/each}
 								</Command.Group>

@@ -23,11 +23,11 @@
 </script>
 
 {#if data.isLoggedIn}
-	<main class="min-h-screen bg-[#f4f1ec] text-[#1b1c1a] flex flex-col">
+	<main class="min-h-screen bg-[#f4f1ec] text-[#1b1c1a] flex flex-col w-full min-w-0 overflow-x-hidden">
 		<!-- Top Bar -->
-		<header class="sticky top-0 z-30 border-b border-[#d6d1c8] bg-[#fbf9f6]/95 backdrop-blur-md">
+		<header class="sticky top-0 z-30 border-b border-[#d6d1c8] bg-[#fbf9f6]/95 backdrop-blur-md w-full">
 			<div
-				class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10 sm:py-4"
+				class="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-10 sm:py-4"
 			>
 				<!-- Brand -->
 				<div class="flex items-center gap-3">
@@ -155,7 +155,7 @@
 		</header>
 
 		<!-- Main content with padding bottom for mobile bottom nav -->
-		<div class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-10 pb-24 lg:pb-12">
+		<div class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-10 pb-24 lg:pb-12 min-w-0 overflow-x-hidden">
 			{@render children()}
 		</div>
 

@@ -33,6 +33,6 @@
 	</p>
 {/if}
 
-<form method="POST" enctype="multipart/form-data" class="mt-6">
+<form method="POST" enctype="multipart/form-data" class="mt-6 w-full max-w-full min-w-0">
 	<AdminProductForm categories={data.categories} submitLabel="Dodaj proizvod" />
 </form>

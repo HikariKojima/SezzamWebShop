@@ -1,6 +1,5 @@
 export const availabilityOptions = [
 	{ value: 'in-stock', label: 'Na stanju' },
-	{ value: 'low-stock', label: 'Niska zaliha' },
 	{ value: 'by-order', label: 'Po narudžbi' },
 	{ value: 'out-of-stock', label: 'Nema na stanju' }
 ] as const;
